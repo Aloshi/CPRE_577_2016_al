@@ -4,6 +4,7 @@
 
 // stl
 #include <iostream>
+#include <algorithm>
 
 
 // glm
