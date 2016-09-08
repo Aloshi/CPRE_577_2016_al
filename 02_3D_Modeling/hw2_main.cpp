@@ -100,16 +100,36 @@ unsigned int vboID[4];
  */
 unsigned int createTriangleStripModel(void)
 {
+	static const glm::fvec3 vertices[] = {
+		glm::fvec3(0, 0, 0),
+		glm::fvec3(1, 1, 0),
+		glm::fvec3(1, 0, 0)
+	};
+	static const glm::fvec3 colors[] = {
+		glm::fvec3(1, 0, 0),
+		glm::fvec3(0, 1, 0),
+		glm::fvec3(0, 0, 1)
+	};
+	const int n_vertices = sizeof(vertices) / sizeof(vertices[0]);
+
     // use the vertex array object vaoID[0] for this model representation
-    
-    
+	glGenVertexArrays(1, &vaoID[0]);
+	glBindVertexArray(vaoID[0]);
 
+	glGenBuffers(2, &vboID[0]);
 
+	glBindBuffer(GL_ARRAY_BUFFER, vboID[0]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 3 * n_vertices, vertices, GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(0);
 
-    //TODO:
-    vaoID[0];
-    
-    return 1;
+	glBindBuffer(GL_ARRAY_BUFFER, vboID[1]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 3 * n_vertices, colors, GL_STATIC_DRAW);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(1);
+
+	glBindVertexArray(0);
+    return n_vertices;
 }
 
 /*!
@@ -139,7 +159,7 @@ void renderTriangleStripModel(void)
 	// HERE: THIS CAUSES AN ERROR BECAUSE I DO NOT KNOW HOW MANY TRIANGLES / VERTICES YOU HAVE.
 	// COMPLETE THE LINE
     // Draw the triangles
-    glDrawArrays(GL_TRIANGLE_STRIP, ? , ? );
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 3);
 
 
     // Unbind our Vertex Array Object
@@ -161,7 +181,7 @@ void renderPolygonModel(void)
 	// HERE: THIS CAUSES AN ERROR BECAUSE I DO NOT KNOW HOW MANY POLYGONS YOU HAVE.
 	// COMPLETE THE LINE
     // Draw the triangles
-    glDrawArrays(GL_POLYGON, ? , ?);
+    //glDrawArrays(GL_POLYGON, ? , ?);
 
     // Unbind our Vertex Array Object
     glBindVertexArray(0);
