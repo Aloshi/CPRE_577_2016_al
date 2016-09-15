@@ -101,16 +101,97 @@ unsigned int vboID[4];
 unsigned int createTriangleStripModel(void)
 {
 	static const glm::fvec3 vertices[] = {
-		glm::fvec3(0, 0, 0),
-		glm::fvec3(1, 1, 0),
-		glm::fvec3(1, 0, 0)
-	};
-	static const glm::fvec3 colors[] = {
-		glm::fvec3(1, 0, 0),
+		// front
+		glm::fvec3(-2, 0, 1),
+		glm::fvec3(-2, 1, 1),
+		glm::fvec3(0, 0, 1),
+		glm::fvec3(0, 1, 1),
+
+		// top
+		glm::fvec3(-2, 1, 1),
+		glm::fvec3(-2, 1, 0),
+		glm::fvec3(0, 1, 1),
 		glm::fvec3(0, 1, 0),
-		glm::fvec3(0, 0, 1)
+
+		// back
+		glm::fvec3(-2, 1, 0),
+		glm::fvec3(-2, 0, 0),
+		glm::fvec3(0, 1, 0),
+		glm::fvec3(0, 0, 0),
+
+		// bottom
+		glm::fvec3(-2, 0, 0),
+		glm::fvec3(-2, 0, 1),
+		glm::fvec3(0, 0, 0),
+		glm::fvec3(0, 0, 1),
+
+		// left
+		glm::fvec3(-2, 0, 0),
+		glm::fvec3(-2, 0, 1),
+		glm::fvec3(-2, 1, 0),
+		glm::fvec3(-2, 1, 1),
+
+		// right object
+		// left face
+		glm::fvec3(-2, 1, 1),  // degenerate triangle
+		glm::fvec3(0, 2, 0),   // degenerate triangle
+
+		glm::fvec3(0, 2, 0),
+		glm::fvec3(0, 0, 0),
+		glm::fvec3(0, 2, 1),
+		glm::fvec3(0, 0, 3),
+		glm::fvec3(0, 1, 3),
+		glm::fvec3(0, 2, 1),
+
+		// top
+		glm::fvec3(0, 2, 0),
+		glm::fvec3(1, 2, 1),
+		glm::fvec3(1, 2, 0),
+
+		// back
+		glm::fvec3(0, 2, 0),
+		glm::fvec3(0, 0, 0),
+		glm::fvec3(1, 2, 0),
+		glm::fvec3(1, 0, 0),
+
+		// bottom
+		glm::fvec3(1, 0, 0),  // degnerate
+		glm::fvec3(1, 0, 3),
+		glm::fvec3(0, 0, 0),
+		glm::fvec3(0, 0, 3),
+
+		// front
+		glm::fvec3(0, 0, 3),  // degenerate
+		glm::fvec3(1, 0, 3),
+		glm::fvec3(0, 1, 3),
+		glm::fvec3(1, 1, 3),
+
+		// front slope
+		glm::fvec3(1, 1, 3),  // degenerate
+		glm::fvec3(1, 2, 1),
+		glm::fvec3(0, 2, 1),
+
+		glm::fvec3(1, 1, 3),
+		glm::fvec3(0, 1, 3),
+		glm::fvec3(0, 2, 1),
+
+		// right side
+		glm::fvec3(0, 2, 1),  // degenerate
+		glm::fvec3(1, 0, 3),  // degenerate
+
+		glm::fvec3(1, 0, 3),
+		glm::fvec3(1, 1, 3),
+		glm::fvec3(1, 0, 0),
+		glm::fvec3(1, 2, 0),
 	};
+
 	const int n_vertices = sizeof(vertices) / sizeof(vertices[0]);
+	std::vector<glm::fvec3> colors;
+	colors.resize(n_vertices, glm::fvec3(0, 0, 1));
+
+	// color second object red
+	for (int i = 20; i < n_vertices; i++)
+		colors[i] = glm::fvec3(1, 0, 0);
 
     // use the vertex array object vaoID[0] for this model representation
 	glGenVertexArrays(1, &vaoID[0]);
@@ -124,7 +205,7 @@ unsigned int createTriangleStripModel(void)
 	glEnableVertexAttribArray(0);
 
 	glBindBuffer(GL_ARRAY_BUFFER, vboID[1]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 3 * n_vertices, colors, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 3 * n_vertices, colors.data(), GL_STATIC_DRAW);
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(1);
 
@@ -135,14 +216,161 @@ unsigned int createTriangleStripModel(void)
 /*!
  ADD YOUR CODE TO CREATE A MODEL USING PRIMITIVES OF YOUR CHOISE TO THIS FUNCTION
  */
+
+#define FACE(x, off) (off+x*4), off+x*4+1, off+x*4+3,    off+x*4+1, off+x*4+2, off+x*4+3
+#define TRI(x) (x), (x+1), (x+2)
+
 unsigned int createPolygonModel(void)
 {
-    // use the vertex array object vaoID[1] for this model representation
-  
-    //TODO:
-    vaoID[1];
-    
-    return 1;
+	// quad coordinates defined in counter-clockwise order
+	static const glm::fvec3 obj_verts[] = {
+		// front
+		glm::fvec3(-2, 0, 1),
+		glm::fvec3(0, 0, 1),
+		glm::fvec3(0, 1, 1),
+		glm::fvec3(-2, 1, 1),
+
+		// top
+		glm::fvec3(-2, 1, 1),
+		glm::fvec3(0, 1, 1),
+		glm::fvec3(0, 1, 0),
+		glm::fvec3(-2, 1, 0),
+
+		// back
+		glm::fvec3(-2, 1, 0),
+		glm::fvec3(0, 1, 0),
+		glm::fvec3(0, 0, 0),
+		glm::fvec3(-2, 0, 0),
+
+		// left
+		glm::fvec3(-2, 0, 0),
+		glm::fvec3(-2, 0, 1),
+		glm::fvec3(-2, 1, 1),
+		glm::fvec3(-2, 1, 0),
+
+		// right
+		glm::fvec3(0, 0, 1),
+		glm::fvec3(0, 0, 0),
+		glm::fvec3(0, 1, 0),
+		glm::fvec3(0, 1, 1),
+
+		// bottom
+		glm::fvec3(-2, 0, 1),
+		glm::fvec3(0, 0, 1),
+		glm::fvec3(0, 0, 0),
+		glm::fvec3(-2, 0, 0),
+
+		// second object
+		// left
+		glm::fvec3(0, 0, 0),
+		glm::fvec3(0, 0, 3),
+		glm::fvec3(0, 2, 0),
+
+		glm::fvec3(0, 2, 0),
+		glm::fvec3(0, 0, 3),
+		glm::fvec3(0, 2, 1),
+
+		glm::fvec3(0, 2, 1),
+		glm::fvec3(0, 0, 3),
+		glm::fvec3(0, 1, 3),
+
+		// back
+		glm::fvec3(0, 0, 0),
+		glm::fvec3(1, 0, 0),
+		glm::fvec3(1, 2, 0),
+		glm::fvec3(0, 2, 0),
+
+		// bottom
+		glm::fvec3(0, 0, 3),
+		glm::fvec3(1, 0, 3),
+		glm::fvec3(1, 0, 0),
+		glm::fvec3(0, 0, 0),
+
+		// front
+		glm::fvec3(0, 0, 3),
+		glm::fvec3(1, 0, 3),
+		glm::fvec3(1, 1, 3),
+		glm::fvec3(0, 1, 3),
+
+		// slope
+		glm::fvec3(0, 1, 3),
+		glm::fvec3(1, 1, 3),
+		glm::fvec3(1, 2, 1),
+		glm::fvec3(0, 2, 1),
+
+		// top
+		glm::fvec3(0, 2, 1),
+		glm::fvec3(1, 2, 1),
+		glm::fvec3(1, 2, 0),
+		glm::fvec3(0, 2, 0),
+
+		// right side
+		glm::fvec3(1, 0, 3),
+		glm::fvec3(1, 0, 0),
+		glm::fvec3(1, 2, 0),
+
+		glm::fvec3(1, 0, 3),
+		glm::fvec3(1, 2, 0),
+		glm::fvec3(1, 2, 1),
+
+		glm::fvec3(1, 0, 3),
+		glm::fvec3(1, 2, 1),
+		glm::fvec3(1, 1, 3),
+	};
+
+	static const int obj_indices[] = {
+		FACE(0, 0),
+		FACE(1, 0),
+		FACE(2, 0),
+		FACE(3, 0),
+		FACE(4, 0),
+		FACE(5, 0),
+		TRI(6*4),
+		TRI(6 * 4 + 3),
+		TRI(6 * 4 + 3*2),
+		FACE(0, 6*4 + 3*3),
+		FACE(1, 6 * 4 + 3 * 3),
+		FACE(2, 6 * 4 + 3 * 3),
+		FACE(3, 6 * 4 + 3 * 3),
+		FACE(4, 6 * 4 + 3 * 3),
+		TRI(53),
+		TRI(53 + 3),
+		TRI(53 + 6),
+	};
+
+
+	std::vector<glm::fvec3> all_verts;
+	for (int i = 0; i < sizeof(obj_indices) / sizeof(obj_indices[0]); i++)
+	{
+		all_verts.push_back(obj_verts[obj_indices[i]]);
+	}
+
+	const int n_vertices = all_verts.size();
+	std::vector<glm::fvec3> colors;
+	colors.resize(n_vertices, glm::fvec3(0, 0, 1));
+
+	// color second object red
+	for (int i = 36; i < n_vertices; i++)
+		colors[i] = glm::fvec3(1, 0, 0);
+
+	// use the vertex array object vaoID[1] for this model representation
+	glGenVertexArrays(1, &vaoID[1]);
+	glBindVertexArray(vaoID[1]);
+
+	glGenBuffers(2, &vboID[2]);
+
+	glBindBuffer(GL_ARRAY_BUFFER, vboID[2]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 3 * n_vertices, all_verts.data(), GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(0);
+
+	glBindBuffer(GL_ARRAY_BUFFER, vboID[3]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 3 * n_vertices, colors.data(), GL_STATIC_DRAW);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(1);
+
+	glBindVertexArray(0);
+	return n_vertices;
 }
 
 
@@ -159,7 +387,7 @@ void renderTriangleStripModel(void)
 	// HERE: THIS CAUSES AN ERROR BECAUSE I DO NOT KNOW HOW MANY TRIANGLES / VERTICES YOU HAVE.
 	// COMPLETE THE LINE
     // Draw the triangles
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 3);
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 55);
 
 
     // Unbind our Vertex Array Object
@@ -181,7 +409,7 @@ void renderPolygonModel(void)
 	// HERE: THIS CAUSES AN ERROR BECAUSE I DO NOT KNOW HOW MANY POLYGONS YOU HAVE.
 	// COMPLETE THE LINE
     // Draw the triangles
-    //glDrawArrays(GL_POLYGON, ? , ?);
+    glDrawArrays(GL_TRIANGLES, 0, 75+9);
 
     // Unbind our Vertex Array Object
     glBindVertexArray(0);
@@ -198,7 +426,7 @@ void renderPolygonModel(void)
 void setupScene(void) {
     
     createTriangleStripModel();
-    renderTriangleStripModel();
+    createPolygonModel();
     
 }
 
@@ -269,7 +497,7 @@ int main(int argc, const char * argv[])
     static const GLfloat clear_depth[] = { 1.0f, 1.0f, 1.0f, 1.0f };
     
     
-    projectionMatrix = glm::perspective(1.1f, (float)800 / (float)600, 0.1f, 100.f);
+    projectionMatrix = glm::perspective(1.1f, (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.1f, 100.f);
     modelMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f)); // Create our model matrix which will halve the size of our model
     viewMatrix = glm::lookAt(glm::vec3(1.0f, 0.0f, 5.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
     
