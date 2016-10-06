@@ -45,6 +45,16 @@ file(GLOB HW3_Program_SRC
   openglpp/VertexArrayObject.cpp
   openglpp/Camera.h
   openglpp/Camera.cpp
+  openglpp/Transform.h
+  openglpp/Transform.cpp
+
+  openglpp/generators/SphereGenerator.h
+  openglpp/generators/SphereGenerator.cpp
+
+  openglpp/Material.h
+  openglpp/Mesh.h
+  openglpp/Mesh.cpp
+  openglpp/Object.h
 )
 
 # Create an executable

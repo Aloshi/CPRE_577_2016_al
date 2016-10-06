@@ -5,6 +5,12 @@
 
 #include <iostream>  // debugging
 
+std::shared_ptr<Shader> Shader::sDefaultShader = nullptr;
+const char* Shader::POSITION_NAME = "in_Position";
+const char* Shader::NORMAL_NAME = NULL; //"in_Normal";
+const char* Shader::COLOR_NAME = "in_Color";
+
+
 Shader::Shader()
 	: mProgramID(0), mShaderIDs {0, 0}
 {
@@ -36,36 +42,36 @@ std::string fileToString(const std::string& path)
 	return str;
 }
 
-Shader Shader::fromFile(const std::string& vertPath, const std::string& fragPath)
+std::shared_ptr<Shader> Shader::fromFile(const std::string& vertPath, const std::string& fragPath)
 {
 	std::string vertSrc = fileToString(vertPath);
 	std::string fragSrc = fileToString(fragPath);
 	return Shader::fromString(vertSrc, fragSrc);
 }
 
-Shader Shader::fromString(const std::string& vertShaderSrc, const std::string& fragShaderSrc)
+std::shared_ptr<Shader> Shader::fromString(const std::string& vertShaderSrc, const std::string& fragShaderSrc)
 {
-	Shader shader;
-	shader.mShaderIDs[0] = compileShader(vertShaderSrc, GL_VERTEX_SHADER);
-	shader.mShaderIDs[1] = compileShader(fragShaderSrc, GL_FRAGMENT_SHADER);
+	std::shared_ptr<Shader> shader = std::make_shared<Shader>();
+	shader->mShaderIDs[0] = compileShader(vertShaderSrc, GL_VERTEX_SHADER);
+	shader->mShaderIDs[1] = compileShader(fragShaderSrc, GL_FRAGMENT_SHADER);
 
-	shader.mProgramID = glCreateProgram();
-	if (shader.mProgramID == 0)
+	shader->mProgramID = glCreateProgram();
+	if (shader->mProgramID == 0)
 		throw ShaderException() << "Unable to create program";
 
-	glAttachShader(shader.mProgramID, shader.mShaderIDs[0]);
-	glAttachShader(shader.mProgramID, shader.mShaderIDs[1]);
-	glLinkProgram(shader.mProgramID);
+	glAttachShader(shader->mProgramID, shader->mShaderIDs[0]);
+	glAttachShader(shader->mProgramID, shader->mShaderIDs[1]);
+	glLinkProgram(shader->mProgramID);
 
 	GLint isLinked;
-	glGetProgramiv(shader.mProgramID, GL_LINK_STATUS, &isLinked);
+	glGetProgramiv(shader->mProgramID, GL_LINK_STATUS, &isLinked);
 	if (isLinked == GL_FALSE)
 	{
 		GLint maxLength;
-		glGetProgramiv(shader.mProgramID, GL_INFO_LOG_LENGTH, &maxLength);
+		glGetProgramiv(shader->mProgramID, GL_INFO_LOG_LENGTH, &maxLength);
 
 		char* log = new char[maxLength];
-		glGetProgramInfoLog(shader.mProgramID, maxLength, NULL, log);
+		glGetProgramInfoLog(shader->mProgramID, maxLength, NULL, log);
 
 		ShaderException exception;
 		exception << log;
@@ -78,27 +84,27 @@ Shader Shader::fromString(const std::string& vertShaderSrc, const std::string& f
 	// get uniform and attribute locations
 	{
 		GLint nUniforms = 0;
-		glGetProgramiv(shader.mProgramID, GL_ACTIVE_UNIFORMS, &nUniforms);
+		glGetProgramiv(shader->mProgramID, GL_ACTIVE_UNIFORMS, &nUniforms);
 		for (GLint i = 0; i < nUniforms; i++) {
 			GLchar name[4096];
 			GLint size;
 			GLenum type;
-			glGetActiveUniform(shader.mProgramID, i, sizeof(name), NULL, &size, &type, name);
+			glGetActiveUniform(shader->mProgramID, i, sizeof(name), NULL, &size, &type, name);
 
-			shader.mUniforms[std::string(name)] = { type, i };
+			shader->mUniforms[std::string(name)] = { type, i };
 		}
 	}
 
 	{
 		GLint nAttribs = 0;
-		glGetProgramiv(shader.mProgramID, GL_ACTIVE_ATTRIBUTES, &nAttribs);
+		glGetProgramiv(shader->mProgramID, GL_ACTIVE_ATTRIBUTES, &nAttribs);
 		for (GLint i = 0; i < nAttribs; i++) {
 			GLchar name[4096];
 			GLint size;
 			GLenum type;
-			glGetActiveAttrib(shader.mProgramID, i, sizeof(name), NULL, &size, &type, name);
+			glGetActiveAttrib(shader->mProgramID, i, sizeof(name), NULL, &size, &type, name);
 
-			shader.mAttributes[name] = { type, i };
+			shader->mAttributes[std::string(name)] = { type, glGetAttribLocation(shader->mProgramID, name) };
 		}
 	}
 

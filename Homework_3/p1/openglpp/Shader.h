@@ -5,6 +5,7 @@
 
 #include <string>
 #include <map>
+#include <memory>  // std::shared_ptr
 
 #include "GLException.h"
 
@@ -13,8 +14,15 @@ class ShaderException : public GLException {};
 class Shader
 {
 public:
-	static Shader fromFile(const std::string& vertexShaderPath, const std::string& fragmentShaderPath);
-	static Shader fromString(const std::string& vertexShader, const std::string& fragmentShader);
+	static const char* POSITION_NAME;
+	static const char* NORMAL_NAME;
+	static const char* COLOR_NAME;
+
+	static std::shared_ptr<Shader> fromFile(const std::string& vertexShaderPath, const std::string& fragmentShaderPath);
+	static std::shared_ptr<Shader> fromString(const std::string& vertexShader, const std::string& fragmentShader);
+
+	inline static void setDefaultShader(const std::shared_ptr<Shader>& shader) { sDefaultShader = shader; }
+	inline static const std::shared_ptr<Shader>& defaultShader() { return sDefaultShader; }
 
 	Shader();
 	Shader(const Shader&) = delete;
@@ -32,6 +40,7 @@ public:
 	void setUniform(const char* name, const glm::mat4x4& mat);
 
 private:
+	static std::shared_ptr<Shader> sDefaultShader;
 	static GLuint compileShader(const std::string& src, GLuint shaderType);
 
 	GLuint mProgramID;

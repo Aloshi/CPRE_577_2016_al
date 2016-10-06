@@ -7,55 +7,80 @@
 
 #include "openglpp/Camera.h"
 
+#include "openglpp/generators/SphereGenerator.h"
+
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+
+#include "openglpp/Object.h"
+
+std::shared_ptr<Mesh> buildSphereMesh()
+{
+	std::vector<glm::vec3> verts;
+	std::vector<glm::vec3> normals;
+	generateSphere(10, 10.0f, verts, normals);
+
+	for (unsigned int i = 0; i < verts.size(); i++) {
+		//std::cout << verts[i].x << ", " << verts[i].y << ", " << verts[i].z << "\n";
+	}
+
+	std::vector<glm::vec3> colors;
+	colors.resize(verts.size(), glm::vec3(1.0f, 0.0f, 1.0f));
+
+	auto sphereMesh = std::make_shared<Mesh>();
+	sphereMesh->setVertices(verts, GL_TRIANGLE_STRIP);
+	sphereMesh->setNormals(normals);
+	sphereMesh->setColors(colors);
+
+	return sphereMesh;
+}
+
+std::shared_ptr<Mesh> buildTriMesh() {
+	std::vector<glm::vec3> verts = {
+		{ -1, 0, 0 },
+		{ 1, 0, 0 },
+		{ 0, 1, 0 },
+	};
+
+	std::vector<glm::vec3> colors = {
+		{ 1, 0, 0 },
+		{ 0, 1, 0 },
+		{ 0, 0, 1 },
+	};
+
+	auto triMesh = std::make_shared<Mesh>();
+	triMesh->setVertices(verts, GL_TRIANGLES);
+	triMesh->setColors(colors);
+	return triMesh;
+}
 
 int main()
 {
 	try {
 		Window window(800, 600, "Homework 3");
 
-		Shader shader = Shader::fromFile("../shaders/vs.glsl", "../shaders/fs.glsl");
-		shader.use();
+		std::shared_ptr<Shader> shader = Shader::fromFile("../shaders/vs.glsl", "../shaders/fs.glsl");
+		Shader::setDefaultShader(shader);
+		shader->use();
 
 		Camera cam(1.57f, 800.0f / 600.0f);
-		cam.lookAt(glm::vec3(0, 0, -1), glm::vec3(0, 0, 0));
+		cam.lookAt(glm::vec3(0, 0, -15), glm::vec3(0, 0, 0));
 
-		shader.setUniform("projectionMatrix", cam.projection());
-		shader.setUniform("viewMatrix", cam.world());
+		shader->setUniform("projectionMatrix", cam.projection());
+		shader->setUniform("viewMatrix", cam.world());
 
-		glm::mat4 model = glm::mat4(1.0f);
-		shader.setUniform("modelMatrix", model);
-
-		glm::vec3 verts[3] = {
-			{ -10, 0, 0 },
-			{ 10, 0, 0 },
-			{ 0, 10, 0 },
-		};
-		auto vboVerts = std::make_shared<VertexBufferObject>();
-		vboVerts->bufferData(3, verts, GL_STATIC_DRAW);
-
-		glm::vec3 colors[3] = {
-			{ 1, 0, 0 },
-			{ 0, 1, 0 },
-			{ 0, 0, 1 },
-		};
-		auto vboColors = std::make_shared<VertexBufferObject>();
-		vboColors->bufferData(3, colors, GL_STATIC_DRAW);
-
-		VertexArrayObject vao;
-		vao.bind();
-		vao.bindVertexAttrib(vboVerts, shader.attrib("in_Position"), 3, GL_FLOAT);
-		vao.bindVertexAttrib(vboColors, shader.attrib("in_Color"), 3, GL_FLOAT);
+		Object obj;
+		obj.setMesh(buildSphereMesh());
+		//obj.transform.setPosition(glm::vec3(0, 0, 0));
 
 		glEnable(GL_DEPTH_TEST);
+		glDisable(GL_CULL_FACE);
 		glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 		while (window.isOpen()) {
 			// render
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-			vao.bind();
-			glDrawArrays(GL_TRIANGLES, 0, 3);
+			obj.Render();
 
 			window.swapBuffers();
 			window.pollEvents();

@@ -20,6 +20,8 @@ public:
 
 		const GLsizeiptr n_bytes = n_elements * sizeof(T);
 		glBufferData(GL_ARRAY_BUFFER, n_bytes, data, usage);
+
+		glBindBuffer(GL_ARRAY_BUFFER, NULL);
 	}
 
 private:
