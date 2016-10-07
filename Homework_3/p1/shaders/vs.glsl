@@ -35,13 +35,13 @@ out vec4 pass_Color;
 vec4 useLight(Light light, vec4 surfacePostion, vec4 normal_transformed, vec3 normal, mat4 inv_view, Material material)
 {
     // Calculate the vector from surface to the current light
-    vec4 surface_to_light = normalize(light.position -  surfacePostion);
+    vec4 surface_to_light = normalize(light.position - surfacePostion);
     if (light.position.w == 0.0) {
         surface_to_light = normalize(light.position);
     }
 
     // Diffuse color
-    float diffuse_coefficient = max(dot(normal_transformed, surface_to_light), 0.0);
+    float diffuse_coefficient = max(dot(vec4(normal, 0), surface_to_light), 0.0);
     vec3 out_diffuse_color = material.diffuse * diffuse_coefficient * light.diffuse_intensity;
 
     // Ambient color
@@ -91,8 +91,8 @@ vec4 useLight(Light light, vec4 surfacePostion, vec4 normal_transformed, vec3 no
         float light_to_surface_angle = dot(light_direction, normal_transformed.xyz);
 
         // 3. Check the angle, if the angle is smaller than 0.0, the surface is not directed towards the light.
-        // if(light_to_surface_angle > 0.0)attenuation = 1.0;
-        // else attenuation = 0.0;
+        //if(light_to_surface_angle > 0.0)attenuation = 1.0;
+        //else attenuation = 0.0;
         attenuation = 1.0;
     }
 
@@ -119,9 +119,9 @@ void main(void)
     }
 
     // Gamma correction
-    //vec4 gamma = vec4(1.0/2.2);
-    //vec4 finalColor = pow(linearColor, gamma);
-    vec4 finalColor = linearColor;
+    vec4 gamma = vec4(1.0/2.2);
+    vec4 finalColor = pow(linearColor, gamma);
+    //vec4 finalColor = linearColor;
 
     // Pass the color
     pass_Color = vec4(finalColor);

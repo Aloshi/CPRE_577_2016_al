@@ -8,6 +8,7 @@
 #include "VertexBufferObject.h"
 
 // manages VBOs for typical vertex attributes
+// TODO - add copy constructor/assignment operator
 class Mesh {
 public:
 	Mesh();

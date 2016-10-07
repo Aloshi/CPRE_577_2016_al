@@ -28,7 +28,7 @@ public:
 		material.shader()->use();
 		mVAO->bind();
 		material.activate();
-		//material.shader()->setUniform("modelMatrix", transform.matrix());
+		material.shader()->setUniform("modelMatrix", transform.matrix());
 		glDrawArrays(mMesh->primitiveType(), 0, mMesh->numPrimitives());
 		glBindVertexArray(NULL);  // unbind VAO
 	}
