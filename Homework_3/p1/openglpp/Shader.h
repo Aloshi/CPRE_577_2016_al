@@ -34,6 +34,7 @@ public:
 	GLint uniform(const char* name);
 	GLint attrib(const char* name);
 
+	void setUniform(const char* name, int val);
 	void setUniform(const char* name, float val);
 	void setUniform(const char* name, const glm::vec3& val);
 	void setUniform(const char* name, const glm::vec4& val);

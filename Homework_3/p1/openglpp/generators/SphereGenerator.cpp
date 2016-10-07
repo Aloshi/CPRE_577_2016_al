@@ -16,16 +16,21 @@ void generateSphere(int n, float radius, std::vector<glm::vec3>& pts_out, std::v
 
 	int current_size = 0;
 	const float PI = 3.141592653589793238462643383279502884197f;
-	for (float theta = 0.; theta < PI; theta += PI / float(rows)) // Elevation [0, PI]
+
+	for (int i = 0; i < rows; i++)
+	//for (float theta = 0.; theta < PI; theta += PI / float(rows)) // Elevation [0, PI]
 	{
-		//double theta = 1.57;
-		float theta2 = theta + PI / float(rows);
+		const float theta = i * (PI / (float)rows);
+		const float theta2 = theta + PI / float(rows);
+
 		int count = 0;
 		int count_row = 0;
 
 		// Iterate through phi, theta then convert r,theta,phi to  XYZ
-		for (float phi = 0.; phi < 2 * PI + PI / float(segments); phi += PI / float(segments)) // Azimuth [0, 2PI]
+		for (int j = 0; j < segments; j++)
+		//for (float phi = 0.; phi < 2 * PI + PI / float(segments); phi += PI / float(segments)) // Azimuth [0, 2PI]
 		{
+			const float phi = j * (PI / (float) segments * 2);
 			int index = current_size + count;
 
 			pts_out[index].x = r * cos(phi) * sin(theta) + center[0];

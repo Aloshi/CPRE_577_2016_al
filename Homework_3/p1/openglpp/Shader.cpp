@@ -7,8 +7,8 @@
 
 std::shared_ptr<Shader> Shader::sDefaultShader = nullptr;
 const char* Shader::POSITION_NAME = "in_Position";
-const char* Shader::NORMAL_NAME = NULL; //"in_Normal";
-const char* Shader::COLOR_NAME = "in_Color";
+const char* Shader::NORMAL_NAME = "in_Normal";
+const char* Shader::COLOR_NAME = NULL;  // "in_Color";
 
 
 Shader::Shader()
@@ -178,6 +178,11 @@ GLint Shader::attrib(const char* name)
 		throw GLException() << "Unknown attribute '" << name << "'";
 
 	return it->second.idx;
+}
+
+void Shader::setUniform(const char* name, int val)
+{
+	glUniform1i(uniform(name), val);
 }
 
 void Shader::setUniform(const char* name, float val)

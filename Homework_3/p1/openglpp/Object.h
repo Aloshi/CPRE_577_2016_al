@@ -28,7 +28,7 @@ public:
 		material.shader()->use();
 		mVAO->bind();
 		material.activate();
-		material.shader()->setUniform("modelMatrix", transform.matrix());
+		//material.shader()->setUniform("modelMatrix", transform.matrix());
 		glDrawArrays(mMesh->primitiveType(), 0, mMesh->numPrimitives());
 		glBindVertexArray(NULL);  // unbind VAO
 	}
@@ -39,7 +39,7 @@ public:
 		if (Shader::POSITION_NAME)
 			mVAO->bindVertexAttrib(mMesh->verticesVBO(), material.shader()->attrib(Shader::POSITION_NAME), 3, GL_FLOAT);
 		if (Shader::NORMAL_NAME)
-			mVAO->bindVertexAttrib(mMesh->normalsVBO(), material.shader()->attrib("in_Normal"), 3, GL_FLOAT, GL_TRUE);
+			mVAO->bindVertexAttrib(mMesh->normalsVBO(), material.shader()->attrib(Shader::NORMAL_NAME), 3, GL_FLOAT, GL_TRUE);
 		if (Shader::COLOR_NAME)
 			mVAO->bindVertexAttrib(mMesh->colorsVBO(), material.shader()->attrib(Shader::COLOR_NAME), 3, GL_FLOAT);
 	}
