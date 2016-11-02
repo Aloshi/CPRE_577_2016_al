@@ -65,26 +65,55 @@ int main()
 
 		shader->setUniform("projectionMatrix", cam.projection());
 		shader->setUniform("viewMatrix", cam.world());
-		
-		Object quad;
 
 		const auto quadMesh = buildQuadMesh();
-		quad.setMesh(quadMesh);
-		
-		quad.material.set("texture", 0);  // bind texture to sampler 0
-		auto tex = std::make_shared<Texture>();
-		tex->fromFile("../test.bmp");
-		quad.material.setTexture(0, tex);
+		Object p1;
 
-		quad.transform.setPosition(glm::vec3(0, 0, 0));
+		{
+			p1.setMesh(quadMesh);
 
-		glEnable(GL_DEPTH_TEST);
+			p1.material.set("opacity", 1.0f);
+
+			p1.material.set("texture", 0);  // bind texture to sampler 0
+			p1.material.setTexture(0, Texture::fromFile("../test.bmp"));
+
+			p1.transform.setPosition(glm::vec3(-2.333f, 1.5f, 0));
+		}
+
+		Object p2[3];
+		for (int i = 0; i < 3; i++) {
+			p2[i].setMesh(quadMesh);
+			p2[i].material.set("texture", 0);
+		}
+
+		p2[0].material.setTexture(0, Texture::fromFile("../p2_gradient.bmp"));
+		p2[0].material.set("opacity", 1.0f);
+		p2[1].material.setTexture(0, Texture::fromFile("../p2_landscape.bmp"));
+		p2[1].material.set("opacity", 0.3f);
+		p2[2].material.setTexture(0, Texture::fromFile("../p2_person.bmp"));
+		p2[2].material.set("opacity", 0.3f);
+
+		// glEnable(GL_DEPTH_TEST);
+
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		// glBlendFunc(s, d);
+		/* GL_ONE_MINUS_SRC_COLOR, GL_DST_COLOR, GL_ONE_MINUS_DST_COLOR,
+		GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_DST_ALPHA,
+		GL_ONE_MINUS_DST_ALPHA. GL_CONSTANT_COLOR,
+		GL_ONE_MINUS_CONSTANT_COLOR, GL_CONSTANT_ALPHA,
+		GL_ONE_MINUS_CONSTANT_ALPHA */
+		//glBlendEquation(GL_FUNC_ADD);
+
 		glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 		while (window.isOpen()) {
 			// render
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-			quad.render();
+			p1.render();
+
+			for (int i = 0; i < 3; i++)
+				p2[i].render();
 
 			window.swapBuffers();
 			window.pollEvents();

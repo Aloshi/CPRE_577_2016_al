@@ -4,7 +4,7 @@
 #include "GLException.h"
 
 Texture::Texture()
-	: mID(0)
+	: mID(0), mWidth(0), mHeight(0)
 {
 	glGenTextures(1, &mID);
 
@@ -23,11 +23,14 @@ Texture::~Texture()
 		glDeleteTextures(1, &mID);
 }
 
-void Texture::fromFile(const char* path)
+std::shared_ptr<Texture> Texture::fromFile(const char* path)
 {
 	unsigned int width, height;
 	std::vector<unsigned char> data = loadBMP(path, &width, &height);
-	setData(data.data(), width, height, GL_RGB, true);
+
+	auto tex = std::make_shared<Texture>();
+	tex->setData(data.data(), width, height, GL_BGR, true);
+	return tex;
 }
 
 void Texture::setData(const unsigned char* data, unsigned int width, unsigned int height, GLenum in_fmt, bool generateMipmaps)
@@ -39,6 +42,9 @@ void Texture::setData(const unsigned char* data, unsigned int width, unsigned in
 		glGenerateMipmap(GL_TEXTURE_2D);
 
 	unbind();
+
+	mWidth = width;
+	mHeight = height;
 }
 
 void Texture::setWrapMode(GLenum s, GLenum t)

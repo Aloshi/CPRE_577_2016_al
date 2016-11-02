@@ -1,5 +1,7 @@
 #pragma once
 
+#include <memory>  // std::shared_ptr
+
 #include <gl/glew.h>  // for GL* types
 
 class Texture
@@ -8,7 +10,7 @@ public:
 	Texture();
 	virtual ~Texture();
 
-	void fromFile(const char* path);
+	static std::shared_ptr<Texture> fromFile(const char* path);
 	void setData(const unsigned char* data, unsigned int width, unsigned int height,
 		GLenum in_fmt = GL_RGB, bool generateMipmaps = true);
 
@@ -18,6 +20,12 @@ public:
 	void bind();
 	void unbind();
 
+	inline unsigned int width() const { return mWidth; }
+	inline unsigned int height() const { return mHeight; }
+
 private:
 	GLuint mID;
+
+	unsigned int mWidth;
+	unsigned int mHeight;
 };

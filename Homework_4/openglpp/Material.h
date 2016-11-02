@@ -23,6 +23,11 @@ public:
     mTextures[idx] = tex;
   }
 
+  inline const std::shared_ptr<Texture>& texture(int i) const {
+	  assert(i < N_TEXTURE_SAMPLERS);
+	  return mTextures[i];
+  }
+
   inline void activate() {
     for (auto it = mInts.begin(); it != mInts.end(); it++)
       mShader->setUniform(it->first.c_str(), it->second);
