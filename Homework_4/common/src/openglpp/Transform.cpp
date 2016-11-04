@@ -1,4 +1,4 @@
-#include "Transform.h"
+#include <openglpp/Transform.h>
 
 Transform::Transform()
 	: mTranslation(0, 0, 0), mScale(1.0f, 1.0f, 1.0f)

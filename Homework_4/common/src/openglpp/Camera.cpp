@@ -1,4 +1,4 @@
-#include "Camera.h"
+#include <openglpp/Camera.h>
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/quaternion.hpp>

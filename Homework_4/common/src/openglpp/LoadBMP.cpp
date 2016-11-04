@@ -1,7 +1,7 @@
-#include "bmp_loader.h"
+#include <openglpp/LoadBMP.h>
 
 #include <stdio.h>
-#include "GLException.h"
+#include <openglpp/GLException.h>
 
 // http://www.opengl-tutorial.org/beginners-tutorials/tutorial-5-a-textured-cube/
 std::vector<unsigned char> loadBMP(const std::string& path, unsigned int* width_out, unsigned int* height_out)

@@ -1,7 +1,7 @@
-#include "Texture.h"
+#include <openglpp/Texture.h>
 
-#include "bmp_loader.h"
-#include "GLException.h"
+#include <openglpp/LoadBMP.h>
+#include <openglpp/GLException.h>
 
 Texture::Texture()
 	: mID(0), mWidth(0), mHeight(0)

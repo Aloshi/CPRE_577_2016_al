@@ -1,4 +1,4 @@
-#include "VertexBufferObject.h"
+#include <openglpp/VertexBufferObject.h>
 
 #include <assert.h>
 #include <iostream>

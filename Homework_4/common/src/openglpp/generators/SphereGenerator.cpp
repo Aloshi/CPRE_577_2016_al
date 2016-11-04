@@ -1,4 +1,4 @@
-#include "SphereGenerator.h"
+#include <openglpp/generators/SphereGenerator.h>
 
 #include <math.h>  // for sin/cos
 #include <iostream>  // debug

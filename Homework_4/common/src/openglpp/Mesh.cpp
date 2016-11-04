@@ -1,4 +1,4 @@
-#include "Mesh.h"
+#include <openglpp/Mesh.h>
 
 Mesh::Mesh()
 	: mVertices(std::make_shared<VertexBufferObject>()),

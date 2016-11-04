@@ -13,6 +13,11 @@
 
 #include "openglpp/Object.h"
 
+#include <GLFW/glfw3.h>  // for glfwGetTime()
+
+#define HW4_ROOT "../../"
+#define P2_ROOT "../"
+
 std::shared_ptr<Mesh> buildQuadMesh()
 {
 	std::vector<glm::vec3> verts = {
@@ -51,7 +56,7 @@ int main()
 	try {
 		Window window(800, 600, "Homework 4");
 
-		std::shared_ptr<Shader> shader = Shader::fromFile("../shaders/hw4_shader_vs.glsl", "../shaders/hw4_shader_fs.glsl");
+		std::shared_ptr<Shader> shader = Shader::fromFile(HW4_ROOT "/shaders/hw4_shader_vs.glsl", HW4_ROOT "/shaders/hw4_shader_fs.glsl");
 		Shader::POSITION_NAME = "in_Position";
 		Shader::NORMAL_NAME = NULL;
 		Shader::COLOR_NAME = NULL;
@@ -61,56 +66,38 @@ int main()
 		shader->use();
 
 		Camera cam(1.0f, 800.0f / 600.0f);
-		cam.lookAt(glm::vec3(0, 0, 5), glm::vec3(0, 0, 0));
+		cam.lookAt(glm::vec3(0, 0, 3), glm::vec3(0, 0, 0));
 
 		shader->setUniform("projectionMatrix", cam.projection());
 		shader->setUniform("viewMatrix", cam.world());
 
-		const auto quadMesh = buildQuadMesh();
-		Object p1;
-
-		{
-			p1.setMesh(quadMesh);
-
-			p1.material.set("opacity", 1.0f);
-
-			p1.material.set("texture", 0);  // bind texture to sampler 0
-			p1.material.setTexture(0, Texture::fromFile("../test.bmp"));
-
-			p1.transform.setPosition(glm::vec3(-2.333f, 1.5f, 0));
-		}
-
 		Object p2[3];
+
+		const auto quadMesh = buildQuadMesh();
 		for (int i = 0; i < 3; i++) {
 			p2[i].setMesh(quadMesh);
 			p2[i].material.set("texture", 0);
 		}
 
-		p2[0].material.setTexture(0, Texture::fromFile("../p2_gradient.bmp"));
+		p2[0].material.setTexture(0, Texture::fromFile(P2_ROOT "/p2_gradient.bmp"));
 		p2[0].material.set("opacity", 1.0f);
-		p2[1].material.setTexture(0, Texture::fromFile("../p2_landscape.bmp"));
+		p2[1].material.setTexture(0, Texture::fromFile(P2_ROOT "/p2_landscape.bmp"));
 		p2[1].material.set("opacity", 0.3f);
-		p2[2].material.setTexture(0, Texture::fromFile("../p2_person.bmp"));
+		p2[2].material.setTexture(0, Texture::fromFile(P2_ROOT "/p2_person.bmp"));
 		p2[2].material.set("opacity", 0.3f);
 
-		// glEnable(GL_DEPTH_TEST);
-
 		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		// glBlendFunc(s, d);
-		/* GL_ONE_MINUS_SRC_COLOR, GL_DST_COLOR, GL_ONE_MINUS_DST_COLOR,
-		GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_DST_ALPHA,
-		GL_ONE_MINUS_DST_ALPHA. GL_CONSTANT_COLOR,
-		GL_ONE_MINUS_CONSTANT_COLOR, GL_CONSTANT_ALPHA,
-		GL_ONE_MINUS_CONSTANT_ALPHA */
-		//glBlendEquation(GL_FUNC_ADD);
 
 		glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 		while (window.isOpen()) {
 			// render
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-			p1.render();
+			// flip modes every couple of seconds
+			if ((int) (glfwGetTime() / 2.0) % 2 == 0)
+				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  // mode 1
+			else
+				glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR);  // mode 2
 
 			for (int i = 0; i < 3; i++)
 				p2[i].render();

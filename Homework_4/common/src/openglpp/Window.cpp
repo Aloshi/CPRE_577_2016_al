@@ -1,5 +1,5 @@
-#include "Window.h"
-#include "GLException.h"
+#include <openglpp/Window.h>
+#include <openglpp/GLException.h>
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>

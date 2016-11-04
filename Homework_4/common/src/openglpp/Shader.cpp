@@ -1,4 +1,4 @@
-#include "Shader.h"
+#include <openglpp/Shader.h>
 
 #include <fstream>
 #include <assert.h>
