@@ -52,7 +52,7 @@ std::shared_ptr<Mesh> buildQuadMesh()
 int main()
 {
 	try {
-		Window window(800, 600, "Homework 4");
+		Window window(800, 600, "Homework 4 Problem 1");
 
 		std::shared_ptr<Shader> shader = Shader::fromFile(HW4_ROOT "/shaders/hw4_shader_vs.glsl", HW4_ROOT "/shaders/hw4_shader_fs.glsl");
 		Shader::POSITION_NAME = "in_Position";
@@ -72,19 +72,14 @@ int main()
 		const auto quadMesh = buildQuadMesh();
 		Object p1;
 
-		{
-			p1.setMesh(quadMesh);
+		p1.setMesh(quadMesh);
 
-			p1.material.set("opacity", 1.0f);
+		p1.material.set("opacity", 1.0f);
 
-			p1.material.set("texture", 0);  // bind texture to sampler 0
-			p1.material.setTexture(0, Texture::fromFile(P1_ROOT "/test.bmp"));
+		p1.material.set("texture", 0);  // bind texture to sampler 0
+		p1.material.setTexture(0, Texture::fromFile(P1_ROOT "/test.bmp"));
 
-			p1.transform.setPosition(glm::vec3(0, 0, 0));
-		}
-
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		p1.transform.setPosition(glm::vec3(0, 0, 0));
 
 		glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 		while (window.isOpen()) {

@@ -54,7 +54,7 @@ std::shared_ptr<Mesh> buildQuadMesh()
 int main()
 {
 	try {
-		Window window(800, 600, "Homework 4");
+		Window window(800, 600, "Homework 4 Problem 2");
 
 		std::shared_ptr<Shader> shader = Shader::fromFile(HW4_ROOT "/shaders/hw4_shader_vs.glsl", HW4_ROOT "/shaders/hw4_shader_fs.glsl");
 		Shader::POSITION_NAME = "in_Position";
