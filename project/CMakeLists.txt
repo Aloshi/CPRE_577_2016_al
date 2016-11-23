@@ -45,9 +45,17 @@ set(trafficsim_INC
   include/openglpp/Transform.h
   include/openglpp/Texture.h
   include/openglpp/generators/SphereGenerator.h
+  include/openglpp/generators/PlaneGenerator.h
   include/openglpp/Material.h
   include/openglpp/Mesh.h
   include/openglpp/Object.h
+
+  include/Util.h
+  include/CameraController.h
+  include/Event.h
+
+  include/Spline.h
+  include/RoadMesh.h
 )
 
 set(trafficsim_SRC
@@ -60,13 +68,14 @@ set(trafficsim_SRC
   src/openglpp/Camera.cpp
   src/openglpp/Transform.cpp
   src/openglpp/Texture.cpp
-
   src/openglpp/generators/SphereGenerator.cpp
   src/openglpp/generators/PlaneGenerator.cpp
-
   src/openglpp/Mesh.cpp
 
   src/main.cpp
+  src/CameraController.cpp
+
+  src/RoadMesh.cpp
 )
 
 # Create an executable

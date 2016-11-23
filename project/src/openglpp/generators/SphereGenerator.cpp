@@ -58,3 +58,16 @@ void generateSphere(int n, float radius, std::vector<glm::vec3>& pts_out, std::v
 		current_size += count;
 	}
 }
+
+std::shared_ptr<Mesh> generateSphere(int n, float radius)
+{
+	std::vector<glm::vec3> pts;
+	std::vector<glm::vec3> normals;
+
+	generateSphere(n, radius, pts, normals);
+
+	std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>();
+	mesh->setVertices(pts, GL_TRIANGLE_STRIP);
+	mesh->setNormals(normals);
+	return mesh;
+}

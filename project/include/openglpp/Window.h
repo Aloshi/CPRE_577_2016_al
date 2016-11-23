@@ -19,6 +19,8 @@ public:
 	void pollEvents();
 	void swapBuffers();
 
+	inline operator GLFWwindow*() const { return mWindow; }
+
 private:
 	static void initGlfw();
 	static void initGlew();
