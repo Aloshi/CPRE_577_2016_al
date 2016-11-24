@@ -14,8 +14,8 @@ template <typename T>
 class CatmullRom
 {
 private:
-	static constexpr float smX[] = { 0.0000000000f, 0.5384693101f, -0.5384693101f, 0.9061798459f, -0.9061798459f };
-	static constexpr float smC[] = { 0.5688888889f, 0.4786286705f, 0.4786286705f, 0.2369268850f, 0.2369268850f };
+	static constexpr float smX[5] = { 0.0000000000f, 0.5384693101f, -0.5384693101f, 0.9061798459f, -0.9061798459f };
+	static constexpr float smC[5] = { 0.5688888889f, 0.4786286705f, 0.4786286705f, 0.2369268850f, 0.2369268850f };
 
 public:
 	CatmullRom() {}

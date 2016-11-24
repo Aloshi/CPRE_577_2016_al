@@ -27,8 +27,8 @@ uniform mat4 modelMatrix;
 
 in vec3 in_Position;
 in vec3 in_Normal;
-//in vec2 in_TexCoords;
-//out vec2 pass_TexCoords;
+in vec2 in_TexCoords;
+out vec2 pass_TexCoords;
 
 out vec4 pass_Color;
 
@@ -117,6 +117,8 @@ void main(void)
     vec4 gamma = vec4(1.0/2.2);
     vec4 finalColor = pow(linearColor, gamma);
     pass_Color = vec4(finalColor);
+
+    pass_TexCoords = in_TexCoords;
 
     gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(in_Position, 1.0);
     //pass_TexCoords = in_TexCoords;

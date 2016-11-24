@@ -49,14 +49,18 @@ void Texture::setData(const unsigned char* data, unsigned int width, unsigned in
 
 void Texture::setWrapMode(GLenum s, GLenum t)
 {
+	bind();
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, s);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, t);
+	unbind();
 }
 
 void Texture::setFilters(GLenum min, GLenum mag)
 {
+	bind();
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, min);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, mag);
+	unbind();
 }
 
 void Texture::bind()

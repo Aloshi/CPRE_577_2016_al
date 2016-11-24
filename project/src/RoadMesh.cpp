@@ -208,8 +208,35 @@ std::shared_ptr<Mesh> Road::generateMesh() const
 		}
 	}
 
+	// texture top of road
+	std::vector<glm::vec2> texCoords(indices.size());
+	const float texScale = 0.25f;
+	const unsigned int topIdxStart = 12;
+	float totalLeftDist = 0.0f;
+	float totalRightDist = 0.0f;
+	for (unsigned int i = 0; i < slices.size() - 1; i++) {
+		unsigned int base = topIdxStart + i * 24;
+		float leftDist = glm::length(points[base + 0] - points[base + 2]) * texScale;
+		float rightDist = glm::length(points[base + 4] - points[base + 5]) * texScale;
+		const float avg = (leftDist + rightDist) / 2.0f;
+		leftDist = rightDist = avg;
+
+		// 0/1 should be based on totalWidth()
+		texCoords[base + 0] = glm::vec2(0, totalLeftDist + leftDist);
+		texCoords[base + 1] = glm::vec2(1, totalRightDist);
+		texCoords[base + 2] = glm::vec2(0, totalLeftDist);
+
+		texCoords[base + 3] = glm::vec2(0, totalLeftDist + leftDist);
+		texCoords[base + 4] = glm::vec2(1, totalRightDist + rightDist);
+		texCoords[base + 5] = glm::vec2(1, totalRightDist);
+
+		totalLeftDist += leftDist;
+		totalRightDist += rightDist;
+	}
+
 	auto mesh = std::make_shared<Mesh>();
 	mesh->setVertices(points, GL_TRIANGLES);
 	mesh->setNormals(normals);
+	mesh->setTexCoords(texCoords);
 	return mesh;
 }

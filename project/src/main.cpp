@@ -64,7 +64,7 @@ bool pollEvent(Event& out) {
 
 int main()
 {
-	Window window(800, 600, "trafficsim", false);
+	Window window(800*2, 600*2, "trafficsim", true);
 	
 	glfwSetKeyCallback(window, process_key);
 	glfwSetMouseButtonCallback(window, process_mouse_button);
@@ -73,6 +73,7 @@ int main()
 	auto shader = Shader::fromFile("../shaders/vs.glsl", "../shaders/fs.glsl");
 	Shader::POSITION_NAME = "in_Position";
 	Shader::NORMAL_NAME = "in_Normal";
+	Shader::TEXCOORDS_NAME = "in_TexCoords";
 	Shader::setDefaultShader(shader);
 	shader->use();
 
@@ -107,26 +108,22 @@ int main()
 		RoadVertex{ glm::vec3(24, 0, 0), glm::vec3(0, 1, 0) },
 	};
 
-	auto markerMesh = generateSphere(10, 0.5f);
+	/*auto markerMesh = generateSphere(10, 0.5f);
 	std::vector<Object> roadVertMarkers(test.vertices.size());
 	for (unsigned int i = 0; i < test.vertices.size(); i++) {
 		roadVertMarkers[i].setMesh(markerMesh);
 		roadVertMarkers[i].transform.setPosition(test.vertices[i].pos);
-	}
-
-	/*CatmullRom<RoadVertex> spline(test.vertices, false);
-	int nSteps = 8;
-	float step = spline.total_length() / nSteps;
-	for (unsigned int i = 0; i <= nSteps; i++) {
-		float d = i * step;
-		RoadVertex c0, c1;
-		spline.evaluate(d, &c0, &c1);
 	}*/
+
 
 	Object ground;
 	//ground.setMesh(generateSphere(40, 5.0f));
 	ground.setMesh(test.generateMesh());
 	ground.transform.setPosition(glm::vec3(0, 0, 0));
+
+	auto tex = Texture::fromFile("../textures/Seamless_Asphalt_Texture.bmp");
+	tex->setWrapMode(GL_REPEAT, GL_REPEAT);
+	ground.material.setTexture(0, tex);
 
 	glEnable(GL_DEPTH_TEST);
 	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
