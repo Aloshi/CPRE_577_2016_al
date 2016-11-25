@@ -20,6 +20,7 @@ public:
   inline void set(const char* name, const glm::vec3& vec) { mVec3s[name] = vec; }
   inline void set(const char* name, const glm::vec4& vec) { mVec4s[name] = vec; }
   inline void setTexture(int idx, const std::shared_ptr<Texture>& tex) {
+	assert(idx < N_TEXTURE_SAMPLERS);
     mTextures[idx] = tex;
   }
 
@@ -48,7 +49,7 @@ public:
   }
 
 private:
-  static const int N_TEXTURE_SAMPLERS = 1;
+  static const int N_TEXTURE_SAMPLERS = 3;
 
   std::shared_ptr<Shader> mShader;
   std::map<std::string, int> mInts;

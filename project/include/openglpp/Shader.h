@@ -18,6 +18,8 @@ public:
 	static const char* NORMAL_NAME;
 	static const char* COLOR_NAME;
 	static const char* TEXCOORDS_NAME;
+	static const char* TANGENT_NAME;  // surface tangent vector
+	static const char* BITANGENT_NAME;  // another surface tangent vector
 
 	static std::shared_ptr<Shader> fromFile(const std::string& vertexShaderPath, const std::string& fragmentShaderPath);
 	static std::shared_ptr<Shader> fromString(const std::string& vertexShader, const std::string& fragmentShader);

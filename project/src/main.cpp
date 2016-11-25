@@ -74,22 +74,24 @@ int main()
 	Shader::POSITION_NAME = "in_Position";
 	Shader::NORMAL_NAME = "in_Normal";
 	Shader::TEXCOORDS_NAME = "in_TexCoords";
+	Shader::TANGENT_NAME = "in_Tangent";
+	Shader::BITANGENT_NAME = "in_Bitangent";
 	Shader::setDefaultShader(shader);
 	shader->use();
 
 	shader->setUniform("lights[0].position", glm::vec4(0, 15, 0, 0));
-	shader->setUniform("lights[0].diffuse_intensity", 1.0f);
-	shader->setUniform("lights[0].ambient_intensity", 0.005f);
-	shader->setUniform("lights[0].specular_intensity", 0.0f);  // 0 for no effect
-	shader->setUniform("lights[0].attenuation_coefficient", 0.0f);  // 0 for no effect
+	//shader->setUniform("lights[0].diffuse_intensity", 1.0f);
+	//shader->setUniform("lights[0].ambient_intensity", 0.005f);
+	//shader->setUniform("lights[0].specular_intensity", 0.0f);  // 0 for no effect
+	//shader->setUniform("lights[0].attenuation_coefficient", 0.0f);  // 0 for no effect
 	// shader->setUniform("lights[0].cone_angle", 0);  // w = 1.0
 	// shader->setUniform("lights[0].cone_direction", 0);  // w = 1.0
 
-	shader->setUniform("materials[0].diffuse", glm::vec3(1, 1, 1));
-	shader->setUniform("materials[0].ambient", glm::vec3(1, 1, 1));
-	shader->setUniform("materials[0].specular", glm::vec3(1, 1, 1));
-	shader->setUniform("materials[0].shininess", 1.0f);
-	shader->setUniform("materials[0].transparency", 1.0f);
+	//shader->setUniform("materials[0].diffuse", glm::vec3(1, 1, 1));
+	//shader->setUniform("materials[0].ambient", glm::vec3(1, 1, 1));
+	//shader->setUniform("materials[0].specular", glm::vec3(1, 1, 1));
+	//shader->setUniform("materials[0].shininess", 1.0f);
+	//shader->setUniform("materials[0].transparency", 1.0f);
 
 	std::shared_ptr<Camera> cam = std::make_shared<Camera>(1.0f, 800.0f / 600.0f);
 	cam->lookAt(glm::vec3(0, 0, 15), glm::vec3(0, 0, 0));
@@ -125,6 +127,20 @@ int main()
 	tex->setWrapMode(GL_REPEAT, GL_REPEAT);
 	ground.material.setTexture(0, tex);
 
+	auto normTex = Texture::fromFile("../textures/Seamless_Asphalt_Texture_NORMAL.bmp");
+	normTex->setWrapMode(GL_REPEAT, GL_REPEAT);
+	ground.material.setTexture(1, normTex);
+
+	auto specTex = Texture::fromFile("../textures/Seamless_Asphalt_Texture_SPECULAR.bmp");
+	specTex->setWrapMode(GL_REPEAT, GL_REPEAT);
+	ground.material.setTexture(2, specTex);
+
+	ground.material.set("texture", 0);
+	ground.material.set("normalTexture", 1);
+	ground.material.set("specularTexture", 2);
+
+	int useTexNormal = 1;
+
 	glEnable(GL_DEPTH_TEST);
 	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 	double lastTime = glfwGetTime();
@@ -135,6 +151,10 @@ int main()
 			case Event::KEY_PRESSED:
 			case Event::KEY_RELEASED:
 				camControl.updateMoveDir(window);
+				if (e.key == GLFW_KEY_N && e.type == Event::KEY_PRESSED) {
+					ground.material.set("useTexNormal", (useTexNormal = !useTexNormal));
+					std::cout << "useTexNormal = " << useTexNormal << "\n";
+				}
 				break;
 			case Event::MOUSE_MOVED:
 				camControl.onMouseMoved(e.mouseDelta.x, e.mouseDelta.y);

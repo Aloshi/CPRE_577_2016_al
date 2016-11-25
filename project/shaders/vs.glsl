@@ -28,11 +28,16 @@ uniform mat4 modelMatrix;
 in vec3 in_Position;
 in vec3 in_Normal;
 in vec2 in_TexCoords;
+in vec3 in_Tangent;
+in vec3 in_Bitangent;
 out vec2 pass_TexCoords;
+out vec3 pass_LightDirection_tangentspace;
+out vec3 pass_EyeDirection_tangentspace;
+out vec3 pass_SurfacePosition_worldspace;
 
-out vec4 pass_Color;
+//out vec4 pass_Color;
 
-vec4 useLight(Light light, vec4 surfacePosition, vec4 normal_transformed, vec3 normal, mat4 inv_view, Material material)
+/*vec4 useLight(Light light, vec4 surfacePosition, vec4 normal_transformed, vec3 normal, mat4 inv_view, Material material)
 {
     // Calculate the vector from surface to the current light
     vec4 surface_to_light = normalize(light.position - surfacePosition);
@@ -101,25 +106,48 @@ vec4 useLight(Light light, vec4 surfacePosition, vec4 normal_transformed, vec3 n
 
     // adds transparency to the object
     return vec4(linearColor, material.transparency);
-}
+}*/
 
 void main(void)
 {
-    vec3 normal = normalize(in_Normal);
+    mat4 modelViewMat = viewMatrix * modelMatrix;
+
+    vec3 position_cameraspace = (modelViewMat * vec4(in_Position, 1)).xyz;
+    vec3 normal_cameraspace = (modelViewMat * vec4(in_Normal, 0)).xyz;
+    vec3 tangent_cameraspace = (modelViewMat * vec4(in_Tangent, 0)).xyz;
+    vec3 bitangent_cameraspace = (modelViewMat * vec4(in_Bitangent, 0)).xyz;
+
+    vec3 lightPosition_cameraspace = (viewMatrix * vec4(lights[0].position.xyz, 1)).xyz;
+
+    mat3 TBN = inverse(mat3(
+      tangent_cameraspace,
+      bitangent_cameraspace,
+      normal_cameraspace
+    ));
+
+    vec3 eye_direction_cameraspace = vec3(0, 0, 0) - position_cameraspace;  // vertex -> camera
+    vec3 light_direction_cameraspace = lightPosition_cameraspace + eye_direction_cameraspace;  // vertex -> light
+
+    pass_LightDirection_tangentspace = TBN * light_direction_cameraspace;
+    pass_EyeDirection_tangentspace = TBN * vec3(0, 1, 0); //eye_direction_cameraspace;
+
+    pass_SurfacePosition_worldspace = (modelMatrix * vec4(in_Position, 1.0)).xyz;
+
+/*    vec3 normal = normalize(in_Normal);
     vec4 transformedNormal =  normalize(transpose(inverse(modelMatrix)) * vec4(normal, 1.0));
-    vec4 surfacePosition = modelMatrix * vec4(in_Position, 1.0);
+    vec4 surfacePosition = modelMatrix * vec4(in_Position, 1.0);*/
 
     // Calculate the color
+/*  
     mat4 inv_view = inverse(viewMatrix);
     vec4 linearColor = vec4(0.0, 0.0, 0.0, 0.0);
     linearColor += useLight(lights[0], surfacePosition, transformedNormal, normal, inv_view, materials[0]);
 
+
     vec4 gamma = vec4(1.0/2.2);
     vec4 finalColor = pow(linearColor, gamma);
-    pass_Color = vec4(finalColor);
+    pass_Color = vec4(finalColor);*/
 
     pass_TexCoords = in_TexCoords;
-
-    gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(in_Position, 1.0);
-    //pass_TexCoords = in_TexCoords;
+    gl_Position = projectionMatrix * modelViewMat * vec4(in_Position, 1.0);
 }

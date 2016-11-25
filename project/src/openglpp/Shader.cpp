@@ -10,6 +10,8 @@ const char* Shader::POSITION_NAME = NULL;  // "in_Position";
 const char* Shader::NORMAL_NAME = NULL;  // "in_Normal";
 const char* Shader::COLOR_NAME = NULL;  // "in_Color";
 const char* Shader::TEXCOORDS_NAME = NULL;  // "in_TexCoords";
+const char* Shader::TANGENT_NAME = NULL;
+const char* Shader::BITANGENT_NAME = NULL;
 
 
 Shader::Shader()

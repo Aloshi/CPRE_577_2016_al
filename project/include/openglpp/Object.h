@@ -32,7 +32,7 @@ public:
 
 		glDrawArrays(mMesh->primitiveType(), 0, mMesh->numPrimitives());
 		glBindVertexArray(0);  // unbind VAO
-		glBindTexture(GL_TEXTURE_2D, 0);  // unbind textures
+		//glBindTexture(GL_TEXTURE_2D, 0);  // unbind textures
 	}
 
 	inline void rebuildVAO() {
@@ -46,6 +46,10 @@ public:
 			mVAO->bindVertexAttrib(mMesh->colorsVBO(), material.shader()->attrib(Shader::COLOR_NAME), 3, GL_FLOAT);
 		if (Shader::TEXCOORDS_NAME)
 			mVAO->bindVertexAttrib(mMesh->texCoordsVBO(), material.shader()->attrib(Shader::TEXCOORDS_NAME), 2, GL_FLOAT);
+		if (Shader::TANGENT_NAME)
+			mVAO->bindVertexAttrib(mMesh->tangentsVBO(), material.shader()->attrib(Shader::TANGENT_NAME), 3, GL_FLOAT);
+		if (Shader::BITANGENT_NAME)
+			mVAO->bindVertexAttrib(mMesh->bitangentsVBO(), material.shader()->attrib(Shader::BITANGENT_NAME), 3, GL_FLOAT);
 	}
 
 private:
