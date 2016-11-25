@@ -21,6 +21,24 @@ public:
 	static const char* TANGENT_NAME;  // surface tangent vector
 	static const char* BITANGENT_NAME;  // another surface tangent vector
 
+	// material properties
+	enum SourceType : int {
+		SOURCE_NONE = 0,
+		SOURCE_COLOR = 0,
+		SOURCE_TEXTURE = 1
+	};
+
+	static const char* MAT_DIFFUSE_TYPE;
+	static const char* MAT_USE_NORMAL_MAP;
+	static const char* MAT_SPECULAR_TYPE;
+
+	static const char* MAT_DIFFUSE_COLOR;
+	static const char* MAT_DIFFUSE_TEXTURE;
+	static const char* MAT_SPECULAR_COLOR;
+	static const char* MAT_SPECULAR_TEXTURE;
+	static const char* MAT_NORMAL_TEXTURE;
+	static const char* MAT_SHININESS;
+
 	static std::shared_ptr<Shader> fromFile(const std::string& vertexShaderPath, const std::string& fragmentShaderPath);
 	static std::shared_ptr<Shader> fromString(const std::string& vertexShader, const std::string& fragmentShader);
 

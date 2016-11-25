@@ -49,6 +49,8 @@ set(trafficsim_INC
   include/openglpp/Material.h
   include/openglpp/Mesh.h
   include/openglpp/Object.h
+  include/openglpp/LoadObj.h
+  include/openglpp/tiny_obj_loader.h
 
   include/Util.h
   include/CameraController.h
@@ -71,6 +73,8 @@ set(trafficsim_SRC
   src/openglpp/generators/SphereGenerator.cpp
   src/openglpp/generators/PlaneGenerator.cpp
   src/openglpp/Mesh.cpp
+  src/openglpp/tiny_obj_loader.cpp
+  src/openglpp/LoadObj.cpp
 
   src/main.cpp
   src/CameraController.cpp

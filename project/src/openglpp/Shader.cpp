@@ -13,6 +13,17 @@ const char* Shader::TEXCOORDS_NAME = NULL;  // "in_TexCoords";
 const char* Shader::TANGENT_NAME = NULL;
 const char* Shader::BITANGENT_NAME = NULL;
 
+const char* Shader::MAT_DIFFUSE_TYPE = NULL;
+const char* Shader::MAT_USE_NORMAL_MAP = NULL;
+const char* Shader::MAT_SPECULAR_TYPE = NULL;
+
+const char* Shader::MAT_DIFFUSE_COLOR = NULL;
+const char* Shader::MAT_DIFFUSE_TEXTURE = NULL;
+const char* Shader::MAT_SPECULAR_COLOR = NULL;
+const char* Shader::MAT_SPECULAR_TEXTURE = NULL;
+const char* Shader::MAT_NORMAL_TEXTURE = NULL;
+
+const char* Shader::MAT_SHININESS = NULL;
 
 Shader::Shader()
 	: mProgramID(0), mShaderIDs {0, 0}

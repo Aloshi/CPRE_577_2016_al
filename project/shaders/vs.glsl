@@ -2,24 +2,38 @@
 
 #define MAX_LIGHTS 1
 
+#define SOURCE_COLOR 0
+#define SOURCE_TEXTURE 1
+
 uniform struct Light {
     vec4 position;
-    float diffuse_intensity;
+    /*float diffuse_intensity;
     float ambient_intensity;
     float specular_intensity;
     float attenuation_coefficient;
     float cone_angle;
-    vec3 cone_direction;
+    vec3 cone_direction;*/
 } lights[MAX_LIGHTS];
 
 uniform struct Material {
-    vec3 diffuse;
-    vec3 ambient;
-    vec3 specular;
+    int diffuseType;
+    vec3 diffuseColor;
+    sampler2D diffuseTexture;
+
+    bool useNormalMap;
+    sampler2D normalMapTexture;
+
+    //vec3 ambient;
+
+    int specularType;
+    vec3 specularColor;
+    sampler2D specularTexture;
+
     //vec3 emissive;
+
     float shininess;
     float transparency;
-} materials[1];
+} material;
 
 uniform mat4 projectionMatrix;
 uniform mat4 viewMatrix;
@@ -31,9 +45,15 @@ in vec2 in_TexCoords;
 in vec3 in_Tangent;
 in vec3 in_Bitangent;
 out vec2 pass_TexCoords;
+
+out vec3 pass_Normal_cameraspace;
+out vec3 pass_EyeDirection_cameraspace;
+out vec3 pass_LightDirection_cameraspace;
+
 out vec3 pass_LightDirection_tangentspace;
 out vec3 pass_EyeDirection_tangentspace;
-out vec3 pass_SurfacePosition_worldspace;
+
+out vec3 pass_SurfacePosition_worldspace;  // for distance
 
 //out vec4 pass_Color;
 
@@ -132,6 +152,10 @@ void main(void)
     pass_EyeDirection_tangentspace = TBN * vec3(0, 1, 0); //eye_direction_cameraspace;
 
     pass_SurfacePosition_worldspace = (modelMatrix * vec4(in_Position, 1.0)).xyz;
+
+    pass_EyeDirection_cameraspace = eye_direction_cameraspace;
+    pass_LightDirection_cameraspace = light_direction_cameraspace;
+    pass_Normal_cameraspace = normal_cameraspace;
 
 /*    vec3 normal = normalize(in_Normal);
     vec4 transformedNormal =  normalize(transpose(inverse(modelMatrix)) * vec4(normal, 1.0));

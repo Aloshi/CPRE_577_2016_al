@@ -21,6 +21,8 @@
 
 #include "RoadMesh.h"
 
+#include <openglpp/LoadObj.h>
+
 std::queue<Event> sEventQueue;
 
 void process_key(GLFWwindow* /*window*/, int key, int /*scancode*/, int action, int modifiers)
@@ -76,6 +78,20 @@ int main()
 	Shader::TEXCOORDS_NAME = "in_TexCoords";
 	Shader::TANGENT_NAME = "in_Tangent";
 	Shader::BITANGENT_NAME = "in_Bitangent";
+
+	Shader::MAT_DIFFUSE_TYPE = "material.diffuseType";
+	Shader::MAT_DIFFUSE_TEXTURE = "material.diffuseTexture";
+	Shader::MAT_DIFFUSE_COLOR = "material.diffuseColor";
+
+	Shader::MAT_USE_NORMAL_MAP = "material.useNormalMap";
+	Shader::MAT_NORMAL_TEXTURE = "material.normalMapTexture";
+
+	Shader::MAT_SPECULAR_TYPE = "material.specularType";
+	Shader::MAT_SPECULAR_TEXTURE = "material.specularTexture";
+	Shader::MAT_SPECULAR_COLOR = "material.specularColor";
+
+	Shader::MAT_SHININESS = "material.shininess";
+
 	Shader::setDefaultShader(shader);
 	shader->use();
 
@@ -135,9 +151,19 @@ int main()
 	specTex->setWrapMode(GL_REPEAT, GL_REPEAT);
 	ground.material.setTexture(2, specTex);
 
-	ground.material.set("texture", 0);
-	ground.material.set("normalTexture", 1);
-	ground.material.set("specularTexture", 2);
+	ground.material.set(Shader::MAT_DIFFUSE_TYPE, Shader::SOURCE_TEXTURE);
+	ground.material.set(Shader::MAT_DIFFUSE_TEXTURE, 0);
+
+	ground.material.set(Shader::MAT_USE_NORMAL_MAP, 1);
+	ground.material.set(Shader::MAT_NORMAL_TEXTURE, 1);
+
+	ground.material.set(Shader::MAT_SPECULAR_TYPE, Shader::SOURCE_TEXTURE);
+	ground.material.set(Shader::MAT_SPECULAR_TEXTURE, 2);
+
+	ground.material.set(Shader::MAT_SHININESS, 6.0f);
+
+	std::vector< std::shared_ptr<Object> > intersection;
+	intersection = loadObj("../models/intersection_4way.obj");
 
 	int useTexNormal = 1;
 
@@ -152,7 +178,7 @@ int main()
 			case Event::KEY_RELEASED:
 				camControl.updateMoveDir(window);
 				if (e.key == GLFW_KEY_N && e.type == Event::KEY_PRESSED) {
-					ground.material.set("useTexNormal", (useTexNormal = !useTexNormal));
+					ground.material.set(Shader::MAT_USE_NORMAL_MAP, (useTexNormal = !useTexNormal));
 					std::cout << "useTexNormal = " << useTexNormal << "\n";
 				}
 				break;
@@ -178,7 +204,10 @@ int main()
 		/*for (unsigned int i = 0; i < roadVertMarkers.size(); i++) {
 			roadVertMarkers[i].render();
 		}*/
-		ground.render();
+		//ground.render();
+		for (unsigned int i = 0; i < intersection.size(); i++) {
+			intersection[i]->render();
+		}
 
 		window.swapBuffers();
 		window.pollEvents();
