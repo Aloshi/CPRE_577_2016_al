@@ -24,6 +24,8 @@
 #include <openglpp/LoadObj.h>
 #include <openglpp/Debug.h>
 
+#include "RoadGraph.h"
+
 std::queue<Event> sEventQueue;
 
 void process_key(GLFWwindow* /*window*/, int key, int /*scancode*/, int action, int modifiers)
@@ -116,7 +118,30 @@ int main()
 
 	CameraController camControl(cam);
 
-	Road test;
+	auto test1 = std::make_shared<Road>();
+	test1->vertices = {
+		RoadVertex{ glm::vec3(0, 0, -10), glm::vec3(0, 1, 0) },
+		RoadVertex{ glm::vec3(5, 0, -5), glm::vec3(0, 1, 0) },
+		RoadVertex{ glm::vec3(10, 0, 0), glm::vec3(0, 1, 0) },
+		RoadVertex{ glm::vec3(15, 0, 0), glm::vec3(0, 1, 0) },
+	};
+
+	auto test2 = std::make_shared<Road>();
+	test2->vertices = {
+		RoadVertex{ glm::vec3(25, 0, 0), glm::vec3(0, 1, 0) },
+		RoadVertex{ glm::vec3(30, 0, 0), glm::vec3(0, 1, 0) },
+		RoadVertex{ glm::vec3(35, 0, 5), glm::vec3(0, 1, 0) },
+		RoadVertex{ glm::vec3(40, 0, 10), glm::vec3(0, 1, 0) },
+	};
+
+	auto test3 = std::make_shared<Intersection>();
+	test3->edges.push_back(IntersectionEdge{ glm::vec3(15, 0, 0), glm::vec3(0, 1, 0), glm::vec3(1, 0, 0) });
+	test3->edges.push_back(IntersectionEdge{ glm::vec3(25, 0, 0), glm::vec3(0, 1, 0), glm::vec3(-1, 0, 0) });
+
+	connect(test1, 1, test3, 0);
+	connect(test2, 0, test3, 1);
+
+	/*Road test;
 	test.vertices = {
 		RoadVertex{ glm::vec3(0, 0, 0), glm::vec3(0, 1, 0) },
 		RoadVertex{ glm::vec3(4, 0, -3), glm::vec3(0, 1, 0) },
@@ -125,26 +150,25 @@ int main()
 		RoadVertex{ glm::vec3(16, 0, -5), glm::vec3(0, 1, 0) },
 		RoadVertex{ glm::vec3(20, 0, -3), glm::vec3(0, 1, 0) },
 		RoadVertex{ glm::vec3(24, 0, 0), glm::vec3(0, 1, 0) },
-	};
+	};*/
 
-	/*auto markerMesh = generateSphere(10, 0.5f);
-	std::vector<Object> roadVertMarkers(test.vertices.size());
-	for (unsigned int i = 0; i < test.vertices.size(); i++) {
-		roadVertMarkers[i].setMesh(markerMesh);
-		roadVertMarkers[i].transform.setPosition(test.vertices[i].pos);
-	}*/
+	//std::shared_ptr<Object> roadObj = test.generateObject();
 
+	//std::shared_ptr<Object> intersection = loadObj("../models/intersection_4way.obj");
 
-	std::shared_ptr<Object> roadObj = test.generateObject();
-	//ground.setMesh(generateSphere(40, 5.0f));
-	//ground.setMesh(test.generateMesh());
-	//ground.transform.setPosition(glm::vec3(0, 0, 0));
+	std::vector<std::shared_ptr<Road> > roads = { test1, test2 };
+	std::vector<std::shared_ptr<Intersection> > intersections = { test3 };
 
-	
+	std::vector< std::shared_ptr<Object> > objects;
+	for (auto r : roads)
+		objects.push_back(r->generateObject());
+	for (auto i : intersections)
+		objects.push_back(i->generateObject());
 
-	std::shared_ptr<Object> intersection = loadObj("../models/intersection_4way.obj");
+	RoadGraph graph = RoadGraph::build(roads, intersections);
+	graph.visualize();
 
-	{
+	/*{
 		CatmullRom<RoadVertex> spline;
 		spline.set_control_points(test.vertices, true);
 		unsigned int n_slices = (int)ceil(spline.total_length() / 1.0f);
@@ -155,14 +179,7 @@ int main()
 			spline.evaluate(d, &c0, &c1);
 			debugPts.push_back(c0.pos);
 		}
-		Debug::drawPath(debugPts, glm::vec3(1, 1, 1));
-		/*Debug::drawLineLoop({ {
-				glm::vec3(0, 0, 0),
-				glm::vec3(5, 0, 0),
-				glm::vec3(5, 5, 0),
-			glm::vec3(-5, 6, 0)
-			} });*/
-	}
+	}*/
 
 	int useTexNormal = 1;
 
@@ -202,8 +219,12 @@ int main()
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		roadObj->render();
-		intersection->render();
+		for (unsigned int i = 0; i < objects.size(); i++) {
+			objects[i]->render();
+		}
+
+		//roadObj->render();
+		//intersection->render();
 
 		Debug::draw(*cam);
 

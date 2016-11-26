@@ -29,51 +29,66 @@ inline RoadVertex operator*(float lhs, const RoadVertex& rhs) {
 
 struct Road;
 struct Intersection;
+struct IntersectionEdge;
 
 
 
 struct RoadConnection
 {
-	std::weak_ptr<Intersection> intersection;
-	int vertIdx;
-
-	inline bool valid() const { return !intersection.expired(); }
-	const RoadVertex& vertex() const;
-};
-
-struct IntersectionConnection {
 	std::weak_ptr<Road> road;
-	int end;
+	int roadEnd;
 
-	inline bool valid() const { return !road.expired(); }
-	const RoadVertex& vertex() const;
+	std::weak_ptr<Intersection> intersection;
+	int intersectionVertIdx;
+
+	inline bool valid() const { return !intersection.expired() && !road.expired(); }
+	const RoadVertex& roadVertex() const;
+	const IntersectionEdge& intersectionEdge() const;
 };
-
 
 
 struct Road
 {
 	std::vector<RoadVertex> vertices;
-	RoadConnection connections[2];
+	std::vector< std::shared_ptr<RoadConnection> > connections;
 
 	CatmullRom<RoadVertex> generateSpline(int lane) const;
-	std::shared_ptr<Mesh> generateMesh() const;
 	std::shared_ptr<Object> generateObject() const;  // sets up textures/materials
 
-private:
-	inline float laneWidth() const { return 3.0f; }
-	inline float height() const { return 1.0f; }
 	inline int lanes() const { return 2; }
-	inline float totalWidth() const { return lanes() * laneWidth(); }
 
+private:
+	std::shared_ptr<Mesh> generateMesh() const;
+
+	inline float centerPadding() const { return 0.0f; }
+	inline float lanePadding() const { return 0.0f; }
+	inline float laneWidth() const { return 3.0f; }
+	inline float gutterWidth() const { return 0.0f; }
+	inline float height() const { return 1.0f; }
+	inline float totalWidth() const {
+		return centerPadding() * 2 + laneWidth() * lanes() + lanePadding() * (lanes() - 2) + gutterWidth() * 2;
+	}
+
+};
+
+struct IntersectionEdge {
+	glm::vec3 pos;
+	glm::vec3 normal;
+	glm::vec3 forward;
+
+	inline int lanes() const { return 2; }
+	inline float centerPadding() const { return 0.0f; }
+	inline float lanePadding() const { return 0.0f; }
+	inline float laneWidth() const { return 3.0f; }
 };
 
 struct Intersection
 {
-	std::vector<RoadVertex> vertices;
-	std::vector<IntersectionConnection> connections;
+	std::vector<IntersectionEdge> edges;
+	std::vector< std::shared_ptr<RoadConnection> > connections;
 
-	CatmullRom<RoadVertex> generateSpline(int from, int to) const;
-	// std::shared_ptr<Mesh> generateMesh() const;
+	CatmullRom<RoadVertex> generateSpline(int fromVtx, int toVtx, int lane) const;
 	std::shared_ptr<Object> generateObject() const;
 };
+
+void connect(const std::shared_ptr<Road>& road, int roadEnd, const std::shared_ptr<Intersection>& intersection, int vtxId);

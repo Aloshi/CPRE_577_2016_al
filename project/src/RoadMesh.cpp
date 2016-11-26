@@ -1,50 +1,19 @@
 #include "RoadMesh.h"
 #include "Util.h"
 
+#include <openglpp/LoadObj.h>
+
 #include <iostream>
 
-const RoadVertex& RoadConnection::vertex() const {
-	return intersection.lock()->vertices.at(vertIdx);
+const RoadVertex& RoadConnection::roadVertex() const {
+	std::shared_ptr<Road> road = this->road.lock();
+	return roadEnd == 0 ? road->vertices.front() : road->vertices.back();
 }
 
-const RoadVertex& IntersectionConnection::vertex() const {
-	std::shared_ptr<Road> ptr = road.lock();
-	return end == 0 ? ptr->vertices.front() : ptr->vertices.back();
+const IntersectionEdge& RoadConnection::intersectionEdge() const {
+	return intersection.lock()->edges.at(intersectionVertIdx);
 }
 
-CatmullRom<RoadVertex> Road::generateSpline(int lane) const
-{
-	CatmullRom<RoadVertex> spline;
-	std::vector<RoadVertex> splineVerts = this->vertices;
-	spline.set_control_points(splineVerts, true);
-	return spline;
-
-	// TODO use connections to generate ends
-	/*if (connections[0].valid())
-		splineVerts.insert(splineVerts.begin(), connections[0].vertex());
-	else
-		splineVerts.insert(splineVerts.begin(), splineVerts.front());
-
-	if (connections[1].valid())
-		splineVerts.insert(splineVerts.end(), connections[1].vertex());
-	else
-		splineVerts.insert(splineVerts.end(), splineVerts.back());*/
-
-	/*if (lane == -1) {
-
-	} else {
-		int dir = (lane % 2 == 0) ? 1 : -1;
-		float off = lane / 2 * dir * laneWidth();
-
-		// TODO don't build time map for temporary spline
-		// TODO use connections to generate endpoints
-		std::vector<RoadVertex> shiftedVerts(splineVerts.size());
-		for (unsigned int seg = 1; seg < splineVerts.size() - 2; seg++) {
-			RoadVertex c0, c1;
-			spline.evaluate_segment(seg, 0.0f, &c0, &c1);
-		}
-	}*/
-}
 
 #define TOP_LEFT 0
 #define TOP_RIGHT 1
@@ -86,8 +55,8 @@ std::vector<RoadSlice> buildSlices(const CatmullRom<RoadVertex>& spline, float w
 	}
 
 	/*for (unsigned int i = 0; i < spline.n_time_points(); i++) {
-		auto t = spline.time_point(i);
-		std::cout << "t[" << i << "]: d=" << t.distance << ", seg=" << t.segment_idx << ", u=" << t.u << "\n";
+	auto t = spline.time_point(i);
+	std::cout << "t[" << i << "]: d=" << t.distance << ", seg=" << t.segment_idx << ", u=" << t.u << "\n";
 	}*/
 	std::cout << "total length: " << spline.total_length() << "\n";
 
@@ -122,13 +91,43 @@ std::vector<RoadSlice> buildSlices(const CatmullRom<RoadVertex>& spline, float w
 	return slices;
 }
 
+CatmullRom<RoadVertex> Road::generateSpline(int lane) const
+{
+	CatmullRom<RoadVertex> spline;
+	std::vector<RoadVertex> splineVerts = this->vertices;
+	spline.set_control_points(splineVerts, true);
+	if (lane == -1)
+		return spline;
+
+	auto slices = buildSlices(spline, totalWidth(), height());
+
+	const int laneThisSide = lane / 2;
+	const float padding = centerPadding() + laneThisSide * (lanePadding() + laneWidth());
+	const int dir = lane % 2 == 0 ? 1 : -1;
+
+	float t = 0.5f + ((padding + laneWidth() / 2.0f) / totalWidth()) * dir;
+	splineVerts.resize(slices.size());
+	for (unsigned int i = 0; i < slices.size(); i++) {
+		glm::vec3 vec = (slices[i].verts[TOP_RIGHT] - slices[i].verts[TOP_LEFT]);
+		glm::vec3 p = slices[i].verts[TOP_LEFT] + vec * t;
+		glm::vec3 n = glm::normalize(slices[i].verts[TOP_LEFT] - slices[i].verts[BOTTOM_LEFT]);
+		splineVerts[i].pos = p;
+		splineVerts[i].normal = n;
+	}
+
+	// flip if it's an odd lane
+	if (lane % 2 != 0)
+		std::reverse(splineVerts.begin(), splineVerts.end());
+
+	spline.set_control_points(splineVerts, true);
+	return spline;
+}
+
 std::shared_ptr<Mesh> Road::generateMesh() const
 {
 	// need points, normals, and indices
 	std::vector<unsigned int> indices;
-
-	CatmullRom<RoadVertex> spline(vertices, true);  // TODO take connections into account for endpoints
-	std::vector<RoadSlice> slices = buildSlices(spline, totalWidth(), height());
+	std::vector<RoadSlice> slices = buildSlices(generateSpline(-1), totalWidth(), height());
 
 	indices.resize((slices.size() - 1) * 8 * 3 + 4 * 3);
 
@@ -202,7 +201,7 @@ std::shared_ptr<Mesh> Road::generateMesh() const
 
 	std::vector<glm::vec3> normals(indices.size());
 	for (unsigned int i = 0; i < indices.size(); i += 3) {
-		const glm::vec3 normal = -glm::normalize(glm::cross(points[i+1] - points[i], points[i + 2] - points[i]));
+		const glm::vec3 normal = -glm::normalize(glm::cross(points[i + 1] - points[i], points[i + 2] - points[i]));
 		for (unsigned int j = 0; j < 3; j++) {
 			normals[i + j] = normal;
 		}
@@ -276,4 +275,63 @@ std::shared_ptr<Object> Road::generateObject() const
 	obj->material.set(Shader::MAT_SHININESS, 6.0f);
 
 	return obj;
+}
+
+RoadVertex edgeToVertex(const IntersectionEdge& e, int lane)
+{
+	int laneThisSide = lane / 2;
+	float dir = (lane % 2 == 0) ? 1 : -1;
+
+	glm::vec3 right = glm::normalize(glm::cross(e.forward, e.normal));
+
+	float padding = (e.lanePadding() + e.laneWidth()) * laneThisSide;
+	glm::vec3 pos = e.pos + right * (e.centerPadding() + padding + e.laneWidth() / 2.0f) * dir;
+
+	return RoadVertex{ pos, e.normal };
+}
+
+CatmullRom<RoadVertex> Intersection::generateSpline(int fromVtx, int toVtx, int lane) const
+{
+	CatmullRom<RoadVertex> spline;
+
+	const auto& fromEdge = edges.at(fromVtx);
+	const auto& toEdge = edges.at(toVtx);
+
+	int otherLane = (lane % 2 == 0) ? lane + 1 : lane - 1;
+
+	std::vector<RoadVertex> pts;
+	pts.push_back(edgeToVertex(fromEdge, lane));
+	pts.push_back(edgeToVertex(toEdge, otherLane));
+
+	spline.set_control_points(pts, true);
+
+	return spline;
+}
+
+std::shared_ptr<Object> Intersection::generateObject() const
+{
+	auto obj = loadObj("../models/intersection_4way.obj");
+	glm::vec3 center(0, 0, 0);
+	for (unsigned int i = 0; i < edges.size(); i++) {
+		center += edges[i].pos;
+	}
+	center /= edges.size();
+	obj->transform.setPosition(center);
+	return obj;
+}
+
+void connect(const std::shared_ptr<Road>& road, int roadEnd, const std::shared_ptr<Intersection>& intersection, int vtxId)
+{
+	assert(roadEnd == 0 || roadEnd == 1);
+	assert(vtxId < (int)intersection->edges.size() && vtxId >= 0);
+	assert(road != nullptr && intersection != nullptr);
+
+	auto conn = std::make_shared<RoadConnection>();
+	conn->road = road;
+	conn->roadEnd = roadEnd;
+	conn->intersection = intersection;
+	conn->intersectionVertIdx = vtxId;
+
+	road->connections.push_back(conn);
+	intersection->connections.push_back(conn);
 }
