@@ -240,3 +240,40 @@ std::shared_ptr<Mesh> Road::generateMesh() const
 	mesh->setTexCoords(texCoords);
 	return mesh;
 }
+
+static bool sInitializedTextures = false;
+static std::shared_ptr<Texture> sTextures[3];
+
+std::shared_ptr<Object> Road::generateObject() const
+{
+	auto obj = std::make_shared<Object>();
+	obj->setMesh(generateMesh());
+
+	if (!sInitializedTextures) {
+		sTextures[0] = Texture::fromFile("../textures/Seamless_Asphalt_Texture.bmp");
+		sTextures[1] = Texture::fromFile("../textures/Seamless_Asphalt_Texture_NORMAL.bmp");
+		sTextures[2] = Texture::fromFile("../textures/Seamless_Asphalt_Texture_SPECULAR.bmp");
+
+		for (int i = 0; i < 3; i++)
+			sTextures[i]->setWrapMode(GL_REPEAT, GL_REPEAT);
+
+		sInitializedTextures = true;
+	}
+
+	obj->material.setTexture(0, sTextures[0]);
+	obj->material.setTexture(1, sTextures[1]);
+	obj->material.setTexture(2, sTextures[2]);
+
+	obj->material.set(Shader::MAT_DIFFUSE_TYPE, Shader::SOURCE_TEXTURE);
+	obj->material.set(Shader::MAT_DIFFUSE_TEXTURE, 0);
+
+	obj->material.set(Shader::MAT_USE_NORMAL_MAP, 1);
+	obj->material.set(Shader::MAT_NORMAL_TEXTURE, 1);
+
+	obj->material.set(Shader::MAT_SPECULAR_TYPE, Shader::SOURCE_TEXTURE);
+	obj->material.set(Shader::MAT_SPECULAR_TEXTURE, 2);
+
+	obj->material.set(Shader::MAT_SHININESS, 6.0f);
+
+	return obj;
+}

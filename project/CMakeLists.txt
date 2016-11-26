@@ -51,6 +51,7 @@ set(trafficsim_INC
   include/openglpp/Object.h
   include/openglpp/LoadObj.h
   include/openglpp/tiny_obj_loader.h
+  include/openglpp/Debug.h
 
   include/Util.h
   include/CameraController.h
@@ -75,6 +76,7 @@ set(trafficsim_SRC
   src/openglpp/Mesh.cpp
   src/openglpp/tiny_obj_loader.cpp
   src/openglpp/LoadObj.cpp
+  src/openglpp/Debug.cpp
 
   src/main.cpp
   src/CameraController.cpp

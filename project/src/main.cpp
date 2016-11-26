@@ -22,6 +22,7 @@
 #include "RoadMesh.h"
 
 #include <openglpp/LoadObj.h>
+#include <openglpp/Debug.h>
 
 std::queue<Event> sEventQueue;
 
@@ -66,8 +67,8 @@ bool pollEvent(Event& out) {
 
 int main()
 {
-	Window window(800*2, 600*2, "trafficsim", true);
-	
+	Window window(800 * 2, 600 * 2, "trafficsim", true);
+
 	glfwSetKeyCallback(window, process_key);
 	glfwSetMouseButtonCallback(window, process_mouse_button);
 	glfwSetCursorPosCallback(window, process_mouse_move);
@@ -134,36 +135,35 @@ int main()
 	}*/
 
 
-	Object ground;
+	std::shared_ptr<Object> roadObj = test.generateObject();
 	//ground.setMesh(generateSphere(40, 5.0f));
-	ground.setMesh(test.generateMesh());
-	ground.transform.setPosition(glm::vec3(0, 0, 0));
+	//ground.setMesh(test.generateMesh());
+	//ground.transform.setPosition(glm::vec3(0, 0, 0));
 
-	auto tex = Texture::fromFile("../textures/Seamless_Asphalt_Texture.bmp");
-	tex->setWrapMode(GL_REPEAT, GL_REPEAT);
-	ground.material.setTexture(0, tex);
+	
 
-	auto normTex = Texture::fromFile("../textures/Seamless_Asphalt_Texture_NORMAL.bmp");
-	normTex->setWrapMode(GL_REPEAT, GL_REPEAT);
-	ground.material.setTexture(1, normTex);
+	/*std::vector< std::shared_ptr<Object> > intersection;
+	intersection = loadObj("../models/intersection_4way.obj");*/
 
-	auto specTex = Texture::fromFile("../textures/Seamless_Asphalt_Texture_SPECULAR.bmp");
-	specTex->setWrapMode(GL_REPEAT, GL_REPEAT);
-	ground.material.setTexture(2, specTex);
-
-	ground.material.set(Shader::MAT_DIFFUSE_TYPE, Shader::SOURCE_TEXTURE);
-	ground.material.set(Shader::MAT_DIFFUSE_TEXTURE, 0);
-
-	ground.material.set(Shader::MAT_USE_NORMAL_MAP, 1);
-	ground.material.set(Shader::MAT_NORMAL_TEXTURE, 1);
-
-	ground.material.set(Shader::MAT_SPECULAR_TYPE, Shader::SOURCE_TEXTURE);
-	ground.material.set(Shader::MAT_SPECULAR_TEXTURE, 2);
-
-	ground.material.set(Shader::MAT_SHININESS, 6.0f);
-
-	std::vector< std::shared_ptr<Object> > intersection;
-	intersection = loadObj("../models/intersection_4way.obj");
+	{
+		CatmullRom<RoadVertex> spline;
+		spline.set_control_points(test.vertices, true);
+		unsigned int n_slices = (int)ceil(spline.total_length() / 1.0f);
+		std::vector<glm::vec3> debugPts;
+		for (unsigned int i = 0; i <= n_slices; i++) {
+			float d = spline.total_length() * ((float)i) / n_slices;
+			RoadVertex c0, c1;
+			spline.evaluate(d, &c0, &c1);
+			debugPts.push_back(c0.pos);
+		}
+		Debug::drawLineLoop(debugPts, glm::vec3(1, 1, 1));
+		/*Debug::drawLineLoop({ {
+				glm::vec3(0, 0, 0),
+				glm::vec3(5, 0, 0),
+				glm::vec3(5, 5, 0),
+			glm::vec3(-5, 6, 0)
+			} });*/
+	}
 
 	int useTexNormal = 1;
 
@@ -177,10 +177,10 @@ int main()
 			case Event::KEY_PRESSED:
 			case Event::KEY_RELEASED:
 				camControl.updateMoveDir(window);
-				if (e.key == GLFW_KEY_N && e.type == Event::KEY_PRESSED) {
+				/*if (e.key == GLFW_KEY_N && e.type == Event::KEY_PRESSED) {
 					ground.material.set(Shader::MAT_USE_NORMAL_MAP, (useTexNormal = !useTexNormal));
 					std::cout << "useTexNormal = " << useTexNormal << "\n";
-				}
+				}*/
 				break;
 			case Event::MOUSE_MOVED:
 				camControl.onMouseMoved(e.mouseDelta.x, e.mouseDelta.y);
@@ -197,6 +197,8 @@ int main()
 
 		// update camera
 		camControl.update(dt);
+
+		Shader::defaultShader()->use();
 		shader->setUniform("viewMatrix", cam->world());
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -204,10 +206,12 @@ int main()
 		/*for (unsigned int i = 0; i < roadVertMarkers.size(); i++) {
 			roadVertMarkers[i].render();
 		}*/
-		//ground.render();
-		for (unsigned int i = 0; i < intersection.size(); i++) {
+		roadObj->render();
+		/*for (unsigned int i = 0; i < intersection.size(); i++) {
 			intersection[i]->render();
-		}
+		}*/
+
+		Debug::draw(*cam);
 
 		window.swapBuffers();
 		window.pollEvents();

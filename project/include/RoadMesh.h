@@ -2,6 +2,7 @@
 
 #include "Spline.h"
 #include <openglpp/Mesh.h>
+#include <openglpp/Object.h>
 #include <glm/vec3.hpp>
 #include <memory>
 
@@ -57,6 +58,7 @@ struct Road
 
 	CatmullRom<RoadVertex> generateSpline(int lane) const;
 	std::shared_ptr<Mesh> generateMesh() const;
+	std::shared_ptr<Object> generateObject() const;  // sets up textures/materials
 
 private:
 	inline float laneWidth() const { return 3.0f; }
