@@ -18,7 +18,9 @@ public:
 	}
 
 	// apply our material, set the model matrix, and render the mesh
-	inline void render() {
+	inline void render(const glm::mat4& parentTransform = glm::mat4(1.0f)) {
+		renderChildren(parentTransform);
+
 		if (mMesh == nullptr)
 			return;
 
@@ -28,7 +30,7 @@ public:
 		material.shader()->use();
 		mVAO->bind();
 		material.activate();
-		material.shader()->setUniform("modelMatrix", transform.matrix());
+		material.shader()->setUniform("modelMatrix", parentTransform * transform.matrix());
 
 		glDrawArrays(mMesh->primitiveType(), 0, mMesh->numPrimitives());
 		glBindVertexArray(0);  // unbind VAO
@@ -52,7 +54,27 @@ public:
 			mVAO->bindVertexAttrib(mMesh->bitangentsVBO(), material.shader()->attrib(Shader::BITANGENT_NAME), 3, GL_FLOAT);
 	}
 
+	void addChild(const std::shared_ptr<Object>& child) {
+		mChildren.push_back(child);
+	}
+
+	void removeChild(const std::shared_ptr<Object>& child) {
+		auto it = std::find(mChildren.begin(), mChildren.end(), child);
+		if (it != mChildren.end()) {
+			mChildren.erase(it);
+		}
+	}
+
+protected:
+	inline void renderChildren(const glm::mat4& parentTransform) {
+		const glm::mat4 mat = parentTransform * transform.matrix();
+		for (unsigned int i = 0; i < mChildren.size(); i++) {
+			mChildren[i]->render(mat);
+		}
+	}
+
 private:
 	std::shared_ptr<Mesh> mMesh;
 	std::shared_ptr<VertexArrayObject> mVAO;
+	std::vector< std::shared_ptr<Object> > mChildren;
 };

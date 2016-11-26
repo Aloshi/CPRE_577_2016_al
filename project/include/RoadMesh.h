@@ -75,4 +75,5 @@ struct Intersection
 
 	CatmullRom<RoadVertex> generateSpline(int from, int to) const;
 	// std::shared_ptr<Mesh> generateMesh() const;
+	std::shared_ptr<Object> generateObject() const;
 };

@@ -142,8 +142,7 @@ int main()
 
 	
 
-	/*std::vector< std::shared_ptr<Object> > intersection;
-	intersection = loadObj("../models/intersection_4way.obj");*/
+	std::shared_ptr<Object> intersection = loadObj("../models/intersection_4way.obj");
 
 	{
 		CatmullRom<RoadVertex> spline;
@@ -156,7 +155,7 @@ int main()
 			spline.evaluate(d, &c0, &c1);
 			debugPts.push_back(c0.pos);
 		}
-		Debug::drawLineLoop(debugPts, glm::vec3(1, 1, 1));
+		Debug::drawPath(debugPts, glm::vec3(1, 1, 1));
 		/*Debug::drawLineLoop({ {
 				glm::vec3(0, 0, 0),
 				glm::vec3(5, 0, 0),
@@ -203,13 +202,8 @@ int main()
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		/*for (unsigned int i = 0; i < roadVertMarkers.size(); i++) {
-			roadVertMarkers[i].render();
-		}*/
 		roadObj->render();
-		/*for (unsigned int i = 0; i < intersection.size(); i++) {
-			intersection[i]->render();
-		}*/
+		intersection->render();
 
 		Debug::draw(*cam);
 

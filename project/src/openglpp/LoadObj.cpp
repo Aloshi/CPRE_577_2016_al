@@ -10,7 +10,7 @@ static std::shared_ptr<Texture> texFromObjMat(const std::string& texname, const 
 	return tex;
 }
 
-std::vector< std::shared_ptr<Object> > loadObj(const std::string& path)
+std::shared_ptr<Object> loadObj(const std::string& path)
 {
 	std::string mtl_basedir = path.substr(0, path.find_last_of('/')+1);
 
@@ -72,7 +72,8 @@ std::vector< std::shared_ptr<Object> > loadObj(const std::string& path)
 		}
 	}
 
-	std::vector< std::shared_ptr<Object> > objs;
+	//std::vector< std::shared_ptr<Object> > objs;
+	std::shared_ptr<Object> parent = std::make_shared<Object>();
 	for (auto it = vertices.begin(); it != vertices.end(); it++) {
 		int material_id = it->first;
 		const tinyobj::material_t mat = (material_id == -1) ? tinyobj::material_t() : materials[material_id];
@@ -125,8 +126,8 @@ std::vector< std::shared_ptr<Object> > loadObj(const std::string& path)
 			obj->material.set(Shader::MAT_SHININESS, mat.shininess);
 		}
 
-		objs.push_back(obj);
+		parent->addChild(std::move(obj));
 	}
 
-	return objs;
+	return parent;
 }

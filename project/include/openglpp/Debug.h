@@ -7,7 +7,7 @@
 namespace Debug
 {
 
-void drawLineLoop(const std::vector<glm::vec3>& pts, glm::vec3 color = glm::vec3(1, 1, 1));
+void drawPath(const std::vector<glm::vec3>& pts, glm::vec3 color = glm::vec3(1, 1, 1));
 
 void draw(const Camera& camera);
 void clear();

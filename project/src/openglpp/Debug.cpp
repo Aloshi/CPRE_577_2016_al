@@ -24,13 +24,20 @@ void init()
 	gInitialized = true;
 }
 
-void drawLineLoop(const std::vector<glm::vec3>& pts, glm::vec3 color)
+void drawPath(const std::vector<glm::vec3>& pts, glm::vec3 color)
 {
 	if (!gInitialized)
 		init();
 
 	auto mesh = std::make_shared<Mesh>();
-	mesh->setVertices(pts, GL_LINE_LOOP);
+
+	std::vector<glm::vec3> lines;
+	for (unsigned int i = 0; i < pts.size() - 1; i++) {
+		lines.push_back(pts.at(i));
+		lines.push_back(pts.at(i+1));
+	}
+
+	mesh->setVertices(lines, GL_LINES);
 
 	auto vao = std::make_shared<VertexArrayObject>();
 	vao->bindVertexAttrib(mesh->verticesVBO(), gShader->attrib("in_Position"), 3, GL_FLOAT);
