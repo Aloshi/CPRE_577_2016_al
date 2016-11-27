@@ -280,7 +280,7 @@ std::shared_ptr<Object> Road::generateObject() const
 RoadVertex edgeToVertex(const IntersectionEdge& e, int lane)
 {
 	int laneThisSide = lane / 2;
-	float dir = (lane % 2 == 0) ? 1 : -1;
+	float dir = (lane % 2 == 0) ? 1.0f : -1.0f;
 
 	glm::vec3 right = glm::normalize(glm::cross(e.forward, e.normal));
 

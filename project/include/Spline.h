@@ -123,6 +123,10 @@ private:
 			- points[3];
 		T C = points[2] - points[0];
 
+		/*T a = points[1] + (0.5f*u1)*(C + u1*(B + u1*A));
+		T b = points[1] + (0.5f*u2)*(C + u2*(B + u2*A));
+		return (b - a).len();*/
+
 		float sum = 0.0f;
 		for (int j = 0; j < 5; ++j)
 		{
@@ -152,7 +156,7 @@ private:
 		// now build a time table
 		std::vector<TimePoint> timePoints;
 		{
-			static const float subdiv_length = 0.01f;
+			static const float subdiv_length = 0.001f;
 			static const float min_travel_distance = 0.05f;
 
 			timePoints.push_back(TimePoint{ 0, 1, 0 });
@@ -167,11 +171,11 @@ private:
 					const float u = static_cast<float>(j) / n_segment_subdivisions;
 					const float subdiv_dist = segmentArcLength(&points[i - 1], u_pre, u);
 					dist += subdiv_dist;
+					u_pre = u;
 					if ((dist - timePoints.back().distance) < min_travel_distance)
 						continue;
 
 					timePoints.push_back(TimePoint{ dist, i, u, });
-					u_pre = u;
 				}
 			}
 		}
@@ -205,6 +209,16 @@ private:
 				return mTimePoints[mid];
 			}
 		}
+
+		/*int min, max;
+		min = max = -1;
+		for (unsigned int i = 1; i < mTimePoints.size(); i++) {
+			if (mTimePoints.at(i).distance > d) {
+				min = i - 1;
+				max = i;
+				break;
+			}
+		}*/
 
 		const TimePoint tp_min = mTimePoints.at(max);
 		const TimePoint tp_max = mTimePoints.at(min);

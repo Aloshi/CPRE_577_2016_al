@@ -17,7 +17,7 @@ struct RoadVertex {
 		return RoadVertex{ pos - rhs.pos, normal - rhs.normal };
 	}
 	inline float len() const {
-		return (float)pos.length();
+		return glm::length(pos);
 	}
 };
 

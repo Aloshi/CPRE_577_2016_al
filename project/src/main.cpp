@@ -120,6 +120,8 @@ int main()
 
 	auto test1 = std::make_shared<Road>();
 	test1->vertices = {
+		RoadVertex{ glm::vec3(-10, 0, -13), glm::vec3(0, 1, 0) },
+		RoadVertex{ glm::vec3(-5, 0, -12), glm::vec3(0, 1, 0) },
 		RoadVertex{ glm::vec3(0, 0, -10), glm::vec3(0, 1, 0) },
 		RoadVertex{ glm::vec3(5, 0, -5), glm::vec3(0, 1, 0) },
 		RoadVertex{ glm::vec3(10, 0, 0), glm::vec3(0, 1, 0) },

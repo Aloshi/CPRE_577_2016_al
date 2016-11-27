@@ -2,6 +2,7 @@
 #include <openglpp/Debug.h>
 
 #include <utility>  // std::pair
+#include <iostream>
 
 std::pair<int, int> roadLanes(int lane, int end1, int end2)
 {
@@ -75,11 +76,13 @@ void splineToPath(const CatmullRom<RoadVertex>& spline,
 	pts_out->clear();
 	normals_out->clear();
 
-	const unsigned int n_slices = (int)ceil(spline.total_length() / 10.0f);
+	const unsigned int n_slices = (int)ceil(spline.total_length() / 0.5f);
+	const float step = spline.total_length() / n_slices;
 	pts_out->reserve(n_slices);
 	normals_out->reserve(n_slices);
+
 	for (unsigned int i = 0; i <= n_slices; i++) {
-		float d = spline.total_length() * ((float)i) / n_slices;
+		float d = step * i;
 		RoadVertex c0, c1;
 		spline.evaluate(d, &c0, &c1);
 		pts_out->push_back(c0.pos);
@@ -105,8 +108,8 @@ void RoadGraph::visualize() const
 		std::vector<glm::vec3> normalLines;
 		normalLines.resize(pts.size() * 2);
 		for (unsigned int j = 0; j < pts.size(); j++) {
-			normalLines[j*2+0] = pts.at(j);
-			normalLines[j*2+1] = normalLines[j*2] + normals.at(j);
+			normalLines[j * 2 + 0] = pts.at(j);
+			normalLines[j * 2 + 1] = normalLines[j * 2] + normals.at(j) * 1.0f;
 		}
 		Debug::drawLines(normalLines, glm::vec3(0, 0, 1));
 	}
