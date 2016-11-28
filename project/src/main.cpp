@@ -26,6 +26,7 @@
 
 #include "RoadGraph.h"
 #include "TrafficController.h"
+#include "FollowCameraController.h"
 
 std::queue<Event> sEventQueue;
 
@@ -117,7 +118,6 @@ int main()
 	cam->lookAt(glm::vec3(0, 0, 15), glm::vec3(0, 0, 0));
 	shader->setUniform("projectionMatrix", cam->projection());
 
-	CameraController camControl(cam);
 
 	auto test1 = std::make_shared<Road>();
 	test1->vertices = {
@@ -169,26 +169,19 @@ int main()
 		objects.push_back(i->generateObject());
 
 	RoadGraph graph = RoadGraph::build(roads, intersections);
-	graph.visualize();
+	//graph.visualize();
 
 	TrafficController tc;
 	tc.setGraph(graph);
 	tc.setTargetPopulation(1);
 
-	/*{
-		CatmullRom<RoadVertex> spline;
-		spline.set_control_points(test.vertices, true);
-		unsigned int n_slices = (int)ceil(spline.total_length() / 1.0f);
-		std::vector<glm::vec3> debugPts;
-		for (unsigned int i = 0; i <= n_slices; i++) {
-			float d = spline.total_length() * ((float)i) / n_slices;
-			RoadVertex c0, c1;
-			spline.evaluate(d, &c0, &c1);
-			debugPts.push_back(c0.pos);
-		}
-	}*/
+	auto freeCam = std::make_shared<CameraController>(cam);
+	auto followCam = std::make_shared<FollowCameraController>(cam, &tc);
+	std::shared_ptr<CameraController> camControl;
+	camControl = freeCam;
 
-	int useTexNormal = 1;
+	int allowTextureMaps = 1;
+	bool useFollowCamera = false;
 
 	glEnable(GL_DEPTH_TEST);
 	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
@@ -199,18 +192,24 @@ int main()
 			switch (e.type) {
 			case Event::KEY_PRESSED:
 			case Event::KEY_RELEASED:
-				camControl.updateMoveDir(window);
-				/*if (e.key == GLFW_KEY_N && e.type == Event::KEY_PRESSED) {
-					ground.material.set(Shader::MAT_USE_NORMAL_MAP, (useTexNormal = !useTexNormal));
-					std::cout << "useTexNormal = " << useTexNormal << "\n";
-				}*/
+				camControl->updateMoveDir(window);
+				if (e.key == GLFW_KEY_F && e.type == Event::KEY_PRESSED) {
+					useFollowCamera = !useFollowCamera;
+					camControl = useFollowCamera ? followCam : freeCam;
+					cam->setPosition(glm::vec3(0, 0, -15));
+				}
+				if (e.key == GLFW_KEY_N && e.type == Event::KEY_PRESSED) {
+					allowTextureMaps = !allowTextureMaps;
+					shader->use();
+					shader->setUniform("allowTextureMaps", allowTextureMaps);
+				}
 				break;
 			case Event::MOUSE_MOVED:
-				camControl.onMouseMoved(e.mouseDelta.x, e.mouseDelta.y);
+				camControl->onMouseMoved(e.mouseDelta.x, e.mouseDelta.y);
 				break;
 			case Event::MOUSE_PRESSED:
 			case Event::MOUSE_RELEASED:
-				camControl.onMouseButton(window, e.mouseButton, e.type == Event::MOUSE_PRESSED, e.modifiers);
+				camControl->onMouseButton(window, e.mouseButton, e.type == Event::MOUSE_PRESSED, e.modifiers);
 			}
 		}
 
@@ -219,7 +218,7 @@ int main()
 		lastTime = now;
 
 		// update
-		camControl.update(dt);
+		camControl->update(dt);
 		tc.update(dt);
 
 		Shader::defaultShader()->use();

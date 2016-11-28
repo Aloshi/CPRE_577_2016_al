@@ -3,6 +3,7 @@
 #include <RoadGraph.h>
 
 class TrafficController;
+class FollowCameraController;
 
 class TrafficAgent
 {
@@ -23,6 +24,8 @@ public:
 	inline State state() const { return mState; }
 
 private:
+	friend FollowCameraController;
+
 	static const int N_TYPES;
 	static std::vector< std::shared_ptr<Object> > sTemplates;
 	static std::shared_ptr<Object> createObject(int type);
@@ -48,8 +51,10 @@ public:
 	void render();
 
 private:
+	friend FollowCameraController;
+
 	RoadGraph mGraph;
 
 	unsigned int mTargetPopulation;
-	std::vector< std::unique_ptr<TrafficAgent> > mAgents;
+	std::vector< std::shared_ptr<TrafficAgent> > mAgents;
 };

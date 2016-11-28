@@ -8,7 +8,7 @@ class CameraController {
 public:
 	CameraController(const std::shared_ptr<Camera>& cam);
 	
-	void update(float dt);
+	virtual void update(float dt);
 
 	inline const std::shared_ptr<Camera>& camera() const { return mCamera; }
 
@@ -16,7 +16,7 @@ public:
 	void onMouseButton(GLFWwindow* window, int button, bool pressed, int modifiers);
 	void onMouseMoved(float dx, float dy);
 
-private:
+protected:
 	bool mRotating;
 	float mMoveSpeed;
 	float mRotateSpeed;

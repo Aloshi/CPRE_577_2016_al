@@ -35,6 +35,8 @@ uniform struct Material {
     float transparency;
 } material;
 
+uniform bool allowTextureMaps = true;
+
 in vec2 pass_TexCoords;
 in vec3 pass_LightDirection_tangentspace;
 in vec3 pass_EyeDirection_tangentspace;
@@ -57,7 +59,7 @@ void main(void)
     }
 
     vec3 n, l, E;
-    if (material.useNormalMap) {
+    if (material.useNormalMap && allowTextureMaps) {
         n = normalize(texture2D(material.normalMapTexture, pass_TexCoords).rgb * 2.0 - 1.0);
         l = normalize(pass_LightDirection_tangentspace);
         E = normalize(pass_EyeDirection_tangentspace);
@@ -68,7 +70,7 @@ void main(void)
     }
 
     vec3 specularColor;
-    if (material.specularType == SOURCE_COLOR) {
+    if (material.specularType == SOURCE_COLOR || !allowTextureMaps) {
         specularColor = material.specularColor;
     } else {
         specularColor = texture2D(material.specularTexture, pass_TexCoords).rgb * 0.4f;
