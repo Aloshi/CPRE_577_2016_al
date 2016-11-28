@@ -45,23 +45,20 @@ RoadGraph RoadGraph::build(const std::vector<RoadPtr>& roads, const std::vector<
 				Road* inRoad = c1->road.lock().get();
 				int inRoadEnd = c1->roadEnd;
 				Road* outRoad = c2->road.lock().get();
-				int outRoadEnd = c2->roadEnd;
+				// for some reason inverting this fixes it, i don't know why and it's approaching 1am, so i don't care
+				int outRoadEnd = !c2->roadEnd;
 
-				// TODO this is wrong!!
 				assert(inRoad->lanes() == outRoad->lanes());
-				for (int lane = 0; lane < inRoad->lanes(); lane++) {
+				for (int lane = 0; lane < inRoad->lanes(); lane += 2) {
 					RoadGraphNodeData data;
 					data.intersection = intersection;
 					data.spline = intersection->generateSpline(i, j, lane);
 
 					const auto lanes = roadLanes(lane, inRoadEnd, outRoadEnd);
+
 					Node* intersectionNode = graph.insert(data);
 					roadNodes[inRoad][lanes.first]->edges.push_back(Edge(intersectionNode));
 					intersectionNode->edges.push_back(roadNodes[outRoad][lanes.second]);
-
-					// next one will be flipped
-					std::swap(inRoad, outRoad);
-					std::swap(inRoadEnd, outRoadEnd);
 				}
 			}
 		}

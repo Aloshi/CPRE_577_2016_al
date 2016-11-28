@@ -3,6 +3,7 @@
 #include "Util.h"  // for randf
 #include <algorithm>  // min/max
 #include <openglpp/Debug.h>
+#include <iostream>
 
 #include <glm/gtx/quaternion.hpp>  // for toQuat
 #include <glm/gtx/transform.hpp>
@@ -43,7 +44,7 @@ void TrafficAgent::start(const RoadGraph::Node* path, float d)
 {
 	mCurrentNode = path;
 	mPosition = clamp(d, 0.0f, path->data.spline.total_length());
-	mVelocity = 2.5f;
+	mVelocity = 3.0f;
 	mState = DRIVING;
 }
 
@@ -140,6 +141,7 @@ void TrafficController::update(float dt)
 		while (it != mAgents.end()) {
 			if (it->get()->state() == TrafficAgent::DEAD_END) {
 				it = mAgents.erase(it);
+				std::cout << "Removing dead agent\n";
 			} else {
 				it++;
 			}
