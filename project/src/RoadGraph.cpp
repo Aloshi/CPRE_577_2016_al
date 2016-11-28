@@ -47,7 +47,7 @@ RoadGraph RoadGraph::build(const std::vector<RoadPtr>& roads, const std::vector<
 				Road* outRoad = c2->road.lock().get();
 				int outRoadEnd = c2->roadEnd;
 
-				// TODO take road end into account!
+				// TODO this is wrong!!
 				assert(inRoad->lanes() == outRoad->lanes());
 				for (int lane = 0; lane < inRoad->lanes(); lane++) {
 					RoadGraphNodeData data;

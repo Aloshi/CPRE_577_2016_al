@@ -19,7 +19,8 @@ public:
 
 	// apply our material, set the model matrix, and render the mesh
 	inline void render(const glm::mat4& parentTransform = glm::mat4(1.0f)) {
-		renderChildren(parentTransform);
+		if (!mChildren.empty())
+			renderChildren(parentTransform);
 
 		if (mMesh == nullptr)
 			return;
@@ -38,7 +39,7 @@ public:
 	}
 
 	inline void rebuildVAO() {
-		mVAO = std::make_shared<VertexArrayObject>();
+		mVAO = std::make_unique<VertexArrayObject>();
 
 		if (Shader::POSITION_NAME)
 			mVAO->bindVertexAttrib(mMesh->verticesVBO(), material.shader()->attrib(Shader::POSITION_NAME), 3, GL_FLOAT);
@@ -65,6 +66,21 @@ public:
 		}
 	}
 
+	virtual std::shared_ptr<Object> clone() const
+	{
+		auto obj = std::make_shared<Object>();
+		obj->transform = transform;
+		obj->material = material;
+		obj->mMesh = mMesh;
+
+		obj->mChildren.reserve(mChildren.size());
+		for (unsigned int i = 0; i < mChildren.size(); i++) {
+			obj->addChild(mChildren[i]->clone());
+		}
+
+		return obj;
+	}
+
 protected:
 	inline void renderChildren(const glm::mat4& parentTransform) {
 		const glm::mat4 mat = parentTransform * transform.matrix();
@@ -75,6 +91,6 @@ protected:
 
 private:
 	std::shared_ptr<Mesh> mMesh;
-	std::shared_ptr<VertexArrayObject> mVAO;
+	std::unique_ptr<VertexArrayObject> mVAO;
 	std::vector< std::shared_ptr<Object> > mChildren;
 };

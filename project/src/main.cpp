@@ -25,6 +25,7 @@
 #include <openglpp/Debug.h>
 
 #include "RoadGraph.h"
+#include "TrafficController.h"
 
 std::queue<Event> sEventQueue;
 
@@ -170,6 +171,10 @@ int main()
 	RoadGraph graph = RoadGraph::build(roads, intersections);
 	graph.visualize();
 
+	TrafficController tc;
+	tc.setGraph(graph);
+	tc.setTargetPopulation(1);
+
 	/*{
 		CatmullRom<RoadVertex> spline;
 		spline.set_control_points(test.vertices, true);
@@ -213,11 +218,12 @@ int main()
 		const float dt = (float)(now - lastTime);
 		lastTime = now;
 
-		// update camera
+		// update
 		camControl.update(dt);
+		tc.update(dt);
 
 		Shader::defaultShader()->use();
-		shader->setUniform("viewMatrix", cam->world());
+		shader->setUniform("viewMatrix", cam->view());
 		//shader->setUniform("lights[0].position", glm::vec4(0, 10 + sin(now) * 10.0f, 0, 0));
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -225,9 +231,7 @@ int main()
 		for (unsigned int i = 0; i < objects.size(); i++) {
 			objects[i]->render();
 		}
-
-		//roadObj->render();
-		//intersection->render();
+		tc.render();
 
 		Debug::draw(*cam);
 

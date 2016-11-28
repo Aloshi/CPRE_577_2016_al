@@ -16,6 +16,10 @@ public:
 	const glm::quat& rotation() const { return mRotation; }
 	void setRotation(const glm::quat& rot);
 
+	const glm::vec3& scale() const { return mScale; }
+	void setScale(const glm::vec3& scale);
+	void setScale(float scale);
+
 	inline const glm::vec3& right() const { return mRight; }
 	inline const glm::vec3& up() const { return mUp; }
 	inline const glm::vec3& forward() const { return mForward; }

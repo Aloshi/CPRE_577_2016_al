@@ -112,5 +112,6 @@ public:
 
 	static RoadGraph build(const std::vector<RoadPtr>& roads, const std::vector<IntersectionPtr>& intersections);
 
+	inline const std::vector<Node*> nodes() const { return mNodes; }
 	void visualize() const;
 };

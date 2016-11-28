@@ -43,14 +43,13 @@ void CameraController::update(float dt)
 		return;
 
 	// rotation
-	//glm::quat rot(glm::vec3(mRotation.y, mRotation.x, 0.0f));
 	glm::quat rot = glm::angleAxis(mRotation.y, glm::vec3(1.0f, 0.0f, 0.0f)) * glm::angleAxis(mRotation.x, glm::vec3(0.0f, 1.0f, 0.0f));
-	mCamera->transform.setRotation(rot);
+	mCamera->setRotation(rot);
 
 	// movement
-	glm::vec3 pos = mCamera->transform.position();
-	pos += mCamera->transform.right() * (float)mMove.x * -mMoveSpeed;
-	pos += mCamera->transform.forward() * (float)mMove.y * mMoveSpeed;
-	pos += mCamera->transform.up() * (float)mMove.z * -mMoveSpeed;
-	mCamera->transform.setPosition(pos);
+	glm::vec3 pos = mCamera->position();
+	pos += mCamera->right() * (float)mMove.x * -mMoveSpeed;
+	pos += mCamera->forward() * (float)mMove.y * mMoveSpeed;
+	pos += mCamera->up() * (float)mMove.z * -mMoveSpeed;
+	mCamera->setPosition(pos);
 }

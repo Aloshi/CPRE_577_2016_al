@@ -61,7 +61,7 @@ void draw(const Camera& camera)
 
 	gShader->use();
 	gShader->setUniform("projectionMatrix", camera.projection());
-	gShader->setUniform("viewMatrix", camera.world());
+	gShader->setUniform("viewMatrix", camera.view());
 	gShader->setUniform("modelMatrix", glm::mat4(1.0f));
 	glDisable(GL_DEPTH_TEST);
 

@@ -11,7 +11,7 @@ static std::shared_ptr<Texture> texFromObjMat(const std::string& texname, const 
 	return tex;
 }
 
-std::shared_ptr<Object> loadObj(const std::string& path)
+std::shared_ptr<Object> loadObj(const std::string& path, glm::bvec3 centerAxes, const glm::quat& rot)
 {
 	std::string mtl_basedir = path.substr(0, path.find_last_of('/')+1);
 
@@ -31,6 +31,10 @@ std::shared_ptr<Object> loadObj(const std::string& path)
 	std::map<int, std::vector<glm::vec3> > vertices;
 	std::map<int, std::vector<glm::vec3> > normals;
 	std::map<int, std::vector<glm::vec2> > texCoords;
+
+	// find center of model by averaging
+	glm::dvec3 center(0.f, 0.f, 0.f);
+	unsigned int triCount = 0;
 
 	// Loop over shapes
 	for (size_t s = 0; s < shapes.size(); s++) {
@@ -68,12 +72,17 @@ std::shared_ptr<Object> loadObj(const std::string& path)
 				vertices[material_id].push_back(glm::vec3(vx, vy, vz));
 				normals[material_id].push_back(glm::vec3(nx, ny, nz));
 				texCoords[material_id].push_back(glm::vec2(tx, ty));
+
+				center += glm::vec3(vx, vy, vz);
+				triCount++;
 			}
 			index_offset += fv;
 		}
 	}
 
-	//std::vector< std::shared_ptr<Object> > objs;
+	center /= triCount;
+	const glm::vec3 centerOffset(centerAxes.x ? (float)-center.x : 0, centerAxes.y ? (float)-center.y : 0, centerAxes.z ? (float)-center.z : 0);
+
 	std::shared_ptr<Object> parent = std::make_shared<Object>();
 	for (auto it = vertices.begin(); it != vertices.end(); it++) {
 		int material_id = it->first;
@@ -127,6 +136,8 @@ std::shared_ptr<Object> loadObj(const std::string& path)
 			obj->material.set(Shader::MAT_SHININESS, mat.shininess);
 		}
 
+		obj->transform.setPosition(centerOffset);
+		obj->transform.setRotation(rot);
 		parent->addChild(std::move(obj));
 	}
 

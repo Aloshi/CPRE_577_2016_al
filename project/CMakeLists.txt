@@ -60,6 +60,7 @@ set(trafficsim_INC
   include/Spline.h
   include/RoadMesh.h
   include/RoadGraph.h
+  include/TrafficController.h
 )
 
 set(trafficsim_SRC
@@ -84,6 +85,7 @@ set(trafficsim_SRC
 
   src/RoadMesh.cpp
   src/RoadGraph.cpp
+  src/TrafficController.cpp
 )
 
 # Create an executable
