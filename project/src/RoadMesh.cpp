@@ -2,6 +2,8 @@
 #include "Util.h"
 
 #include <openglpp/LoadObj.h>
+#include <algorithm>
+#include <math.h>
 
 #include <iostream>
 
@@ -39,7 +41,7 @@ std::vector<RoadSlice> buildSlices(const CatmullRom<RoadVertex>& spline, float w
 	const float BREAK_ANGLE = glm::radians(3.0f);
 
 	const float totalLength = spline.total_length();
-	const int nSlices = (int)std::ceilf(totalLength / MIN_METERS_PER_SLICE);
+	const int nSlices = (int)ceilf(totalLength / MIN_METERS_PER_SLICE);
 	const float lengthStep = totalLength / nSlices;
 
 	std::vector<RoadSlice> slices;

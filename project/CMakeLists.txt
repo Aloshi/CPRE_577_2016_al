@@ -103,4 +103,4 @@ ENDIF(WIN32)
 
 # Add libraries
 target_link_libraries(trafficsim ${GLEW_LIBRARY} ${GLFW3_LIBRARY} ${OPENGL_LIBRARIES} ${OPENGL_LIBRARIES})
-target_compile_features(trafficsim PRIVATE cxx_override cxx_lambdas)
+target_compile_features(trafficsim PRIVATE cxx_override cxx_lambdas cxx_constexpr)

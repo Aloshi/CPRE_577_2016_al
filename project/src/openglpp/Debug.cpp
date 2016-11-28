@@ -1,5 +1,3 @@
-#pragma once
-
 #include <openglpp/Debug.h>
 #include <openglpp/Mesh.h>
 #include <openglpp/VertexArrayObject.h>

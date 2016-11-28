@@ -13,7 +13,7 @@ void Transform::rebuildMatrix()
 	//mMatrix = glm::translate(glm::mat4(1.0f), mTranslation) * glm::mat4_cast(mRotation) * glm::scale(glm::mat4(1.0f), mScale);
 	//mMatrix = glm::scale(glm::mat4(1.0f), mScale) * glm::mat4_cast(mRotation) * glm::translate(glm::mat4(1.0f), mTranslation);
 	glm::mat4 trans = glm::translate(mTranslation);
-	glm::mat4 rot = glm::mat4(mRotation);
+	glm::mat4 rot = glm::mat4_cast(mRotation);
 	glm::mat4 scale = glm::scale(mScale);
 
 	mMatrix = trans * rot * scale;

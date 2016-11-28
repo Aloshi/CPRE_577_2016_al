@@ -111,7 +111,7 @@ void TrafficController::setTargetPopulation(unsigned int count)
 
 void TrafficController::spawnAgent()
 {
-	auto agent = std::make_unique<TrafficAgent>();
+	auto agent = std::unique_ptr<TrafficAgent>(new TrafficAgent());
 	
 	const auto& nodes = mGraph.nodes();
 	const RoadGraph::Node* node = nodes.at(rand() % nodes.size());

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include "Mesh.h"
 #include "Material.h"
 #include "Shader.h"
@@ -39,7 +40,7 @@ public:
 	}
 
 	inline void rebuildVAO() {
-		mVAO = std::make_unique<VertexArrayObject>();
+		mVAO = std::unique_ptr<VertexArrayObject>(new VertexArrayObject());
 
 		if (Shader::POSITION_NAME)
 			mVAO->bindVertexAttrib(mMesh->verticesVBO(), material.shader()->attrib(Shader::POSITION_NAME), 3, GL_FLOAT);
@@ -60,10 +61,12 @@ public:
 	}
 
 	void removeChild(const std::shared_ptr<Object>& child) {
-		auto it = std::find(mChildren.begin(), mChildren.end(), child);
-		if (it != mChildren.end()) {
-			mChildren.erase(it);
-		}
+                for (auto it = mChildren.begin(); it != mChildren.end(); it++) {
+                    if (*it == child) {
+                        mChildren.erase(it);
+                        return;
+                    }
+                }
 	}
 
 	virtual std::shared_ptr<Object> clone() const

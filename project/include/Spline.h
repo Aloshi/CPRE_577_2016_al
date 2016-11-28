@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstddef>  // for NULL
+#include <math.h>  // for ceilf
 #include <vector>
 #include <assert.h>
 
@@ -190,7 +192,7 @@ private:
 		if (d <= 0)
 			return TimePoint{ 0, 1, 0 };
 		else if (d >= mTotalLength)
-			return TimePoint{ mTotalLength, mPoints.size() - 3, 1.0f };
+			return TimePoint{ mTotalLength, (unsigned int)mPoints.size() - 3, 1.0f };
 
 		unsigned int min = 0;
 		unsigned int max = mTimePoints.size() - 1;
@@ -237,3 +239,9 @@ private:
 	std::vector<TimePoint> mTimePoints;
 	float mTotalLength;
 };
+
+template <typename T>
+constexpr float CatmullRom<T>::smX[5];
+
+template <typename T>
+constexpr float CatmullRom<T>::smC[5];
