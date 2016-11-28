@@ -4,6 +4,8 @@
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtx/transform.hpp>
 
+#include <assert.h>
+
 Camera::Camera(float fov, float aspect, float near, float far)
 {
 	setPerspective(fov, aspect, near, far);
@@ -52,3 +54,19 @@ void Camera::lookAt(const glm::vec3& from, const glm::vec3& target, const glm::v
 {
 	setView(glm::lookAt(from, target, up));
 }
+
+glm::vec3 Camera::screenToWorld(float x, float y, float depth) const
+{
+	assert(x >= -1 && x <= 1 && y >= -1 && y <= 1 && depth >= -1 && depth <= 1);
+
+	glm::mat4 mat = glm::inverse(mProjection * mView);
+	glm::vec4 vec(x, y, depth, 1.0f);
+
+	glm::vec4 pos = vec * mat;
+	pos.w = 1.0f / pos.w;
+	pos.x *= pos.w;
+	pos.y *= pos.w;
+	pos.z *= pos.w;
+	return glm::vec3(pos);
+}
+

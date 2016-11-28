@@ -24,6 +24,9 @@ public:
 	inline const glm::vec3& up() const { return mUp; }
 	inline const glm::vec3& forward() const { return mForward; }
 
+	// all in the range -1 to 1
+	glm::vec3 screenToWorld(float x, float y, float depth) const;
+
 private:
 	void rebuildView();
 	void setView(const glm::mat4& mat);
