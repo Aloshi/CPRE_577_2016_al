@@ -23,7 +23,7 @@ uniform struct Material {
     bool useNormalMap;
     sampler2D normalMapTexture;
 
-    //vec3 ambient;
+    vec3 ambientColor;
 
     int specularType;
     vec3 specularColor;
@@ -80,9 +80,15 @@ void main(void)
     float specular = clamp(dot(E, r), 0, 1);
 
     float lightPower = 50;
-    float distance = length(lights[0].position.xyz - pass_SurfacePosition_worldspace);
+    float lightDistance = length(lights[0].position.xyz - pass_SurfacePosition_worldspace);
 
-    color = vec4(diffuseColor * diffuse + specularColor * pow(specular, material.shininess) * lightPower / (distance*distance), 1.0f);
+    //specular = clamp(specular, 0.000001, 0.00001);
+    vec3 diffuseComponent = diffuseColor * diffuse;
+    vec3 specularComponent = specularColor * pow(specular, material.shininess) * lightPower / (lightDistance*lightDistance);
+    if (material.shininess == 0)
+      specularComponent = vec3(0.0, 0.0, 0.0);
+
+    color = vec4(diffuseComponent + specularComponent, 1.0f);
 
     //color = vec4(texture2D(texture, pass_TexCoords).rgb, 1.0) * pass_Color;
     //color = vec4(1, 1, 1, 1);

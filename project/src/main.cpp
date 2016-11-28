@@ -69,7 +69,7 @@ bool pollEvent(Event& out) {
 
 int main()
 {
-	Window window(800 * 2, 600 * 2, "trafficsim", true);
+	Window window(800, 600, "trafficsim", true);
 
 	glfwSetKeyCallback(window, process_key);
 	glfwSetMouseButtonCallback(window, process_mouse_button);
@@ -218,6 +218,7 @@ int main()
 
 		Shader::defaultShader()->use();
 		shader->setUniform("viewMatrix", cam->world());
+		//shader->setUniform("lights[0].position", glm::vec4(0, 10 + sin(now) * 10.0f, 0, 0));
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

@@ -23,7 +23,7 @@ uniform struct Material {
     bool useNormalMap;
     sampler2D normalMapTexture;
 
-    //vec3 ambient;
+    vec3 ambientColor;
 
     int specularType;
     vec3 specularColor;

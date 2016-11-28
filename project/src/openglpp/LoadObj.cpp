@@ -3,10 +3,11 @@
 
 #include <iostream>
 
-static std::shared_ptr<Texture> texFromObjMat(const std::string& texname, const tinyobj::texture_option_t& opt)
+static std::shared_ptr<Texture> texFromObjMat(const std::string& texname, const tinyobj::texture_option_t& opt, const std::string& mtl_basedir)
 {
 	// TODO intelligently reuse these with a map of weak_ptrs
-	auto tex = Texture::fromFile(texname.c_str());
+	std::string fullPath = mtl_basedir + "/" + texname;
+	auto tex = Texture::fromFile(fullPath.c_str());
 	return tex;
 }
 
@@ -97,7 +98,7 @@ std::shared_ptr<Object> loadObj(const std::string& path)
 			} else {
 				obj->material.set(Shader::MAT_DIFFUSE_TYPE, Shader::SOURCE_TEXTURE);
 				obj->material.set(Shader::MAT_DIFFUSE_TEXTURE, 0);
-				obj->material.setTexture(0, texFromObjMat(mat.diffuse_texname, mat.diffuse_texopt));
+				obj->material.setTexture(0, texFromObjMat(mat.diffuse_texname, mat.diffuse_texopt, mtl_basedir));
 			}
 		}
 
@@ -107,7 +108,7 @@ std::shared_ptr<Object> loadObj(const std::string& path)
 			} else {
 				obj->material.set(Shader::MAT_USE_NORMAL_MAP, 1);
 				obj->material.set(Shader::MAT_NORMAL_TEXTURE, 1);
-				obj->material.setTexture(1, texFromObjMat(mat.normal_texname, mat.normal_texopt));
+				obj->material.setTexture(1, texFromObjMat(mat.normal_texname, mat.normal_texopt, mtl_basedir));
 			}
 		}
 
@@ -118,7 +119,7 @@ std::shared_ptr<Object> loadObj(const std::string& path)
 			} else {
 				obj->material.set(Shader::MAT_SPECULAR_TYPE, Shader::SOURCE_TEXTURE);
 				obj->material.set(Shader::MAT_SPECULAR_TEXTURE, 2);
-				obj->material.setTexture(2, texFromObjMat(mat.specular_texname, mat.specular_texopt));
+				obj->material.setTexture(2, texFromObjMat(mat.specular_texname, mat.specular_texopt, mtl_basedir));
 			}
 		}
 
