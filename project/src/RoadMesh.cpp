@@ -60,7 +60,7 @@ std::vector<RoadSlice> buildSlices(const CatmullRom<RoadVertex>& spline, float w
 	auto t = spline.time_point(i);
 	std::cout << "t[" << i << "]: d=" << t.distance << ", seg=" << t.segment_idx << ", u=" << t.u << "\n";
 	}*/
-	std::cout << "total length: " << spline.total_length() << "\n";
+	//std::cout << "total length: " << spline.total_length() << "\n";
 
 	for (int i = 1; i < nSlices; i++) {
 		const float d = i * lengthStep;
@@ -75,7 +75,7 @@ std::vector<RoadSlice> buildSlices(const CatmullRom<RoadVertex>& spline, float w
 			//std::cout << c0.normal.x << ", " << c0.normal.y << ", " << c0.normal.z << "\n";
 			lastForward = forward;
 			slices.push_back(RoadSlice(c0.pos, forward, c0.normal, width, height));
-			std::cout << "adding slice at d=" << d << "\n";
+			//std::cout << "adding slice at d=" << d << "\n";
 		} else {
 			//std::cout << "  SKIP d=" << d << " (angle = " << glm::degrees(angle) << ", forward = " << forward.x << ", " << forward.y << ", " << forward.z << ")\n";
 			//std::cout << "skip (angle = " << angle << ")\n";
@@ -97,6 +97,33 @@ CatmullRom<RoadVertex> Road::generateSpline(int lane) const
 {
 	CatmullRom<RoadVertex> spline;
 	std::vector<RoadVertex> splineVerts = this->vertices;
+
+	/*{
+		bool dupeStart = true, dupeEnd = true;
+		for (unsigned int i = 0; i < connections.size(); i++) {
+			const auto& conn = connections.at(i);
+			const auto& vert = conn->intersectionEdge();
+			if (conn->roadEnd == 0) {
+				auto cp = splineVerts.back();
+				cp.pos = vert.pos + vert.forward;
+				cp.normal = vert.normal;
+				splineVerts.insert(splineVerts.begin(), cp);
+				dupeStart = false;
+			} else {
+				auto cp = splineVerts.back();
+				cp.pos = vert.pos + vert.forward;
+				cp.normal = vert.normal;
+				splineVerts.push_back(cp);
+				dupeEnd = false;
+			}
+		}
+
+		if (dupeStart)
+			splineVerts.insert(splineVerts.begin(), splineVerts.front());
+		if (dupeEnd)
+			splineVerts.insert(splineVerts.end(), splineVerts.back());
+	}*/
+
 	spline.set_control_points(splineVerts, true);
 	if (lane == -1)
 		return spline;
@@ -116,6 +143,32 @@ CatmullRom<RoadVertex> Road::generateSpline(int lane) const
 		splineVerts[i].pos = p;
 		splineVerts[i].normal = n;
 	}
+
+	/*{
+		bool dupeStart = true, dupeEnd = true;
+		for (unsigned int i = 0; i < connections.size(); i++) {
+			const auto& conn = connections.at(i);
+			const auto& vert = conn->intersectionEdge();
+			if (conn->roadEnd == 0) {
+				auto cp = splineVerts.back();
+				cp.pos = vert.pos + vert.forward + glm::cross(vert.forward, vert.normal) * (t - 0.5f);
+				cp.normal = vert.normal;
+				splineVerts.insert(splineVerts.begin(), cp);
+				dupeStart = false;
+			} else {
+				auto cp = splineVerts.back();
+				cp.pos = vert.pos + vert.forward + glm::cross(vert.forward, vert.normal) * (t - 0.5f);
+				cp.normal = vert.normal;
+				splineVerts.push_back(cp);
+				dupeEnd = false;
+			}
+		}
+
+		if (dupeStart)
+			splineVerts.insert(splineVerts.begin(), splineVerts.front());
+		if (dupeEnd)
+			splineVerts.insert(splineVerts.end(), splineVerts.back());
+	}*/
 
 	// flip if it's an odd lane
 	if (lane % 2 != 0)
@@ -334,6 +387,11 @@ void connect(const std::shared_ptr<Road>& road, int roadEnd, const std::shared_p
 	conn->roadEnd = roadEnd;
 	conn->intersection = intersection;
 	conn->intersectionVertIdx = vtxId;
+
+	auto vec = (road->vertices.at(roadEnd ? road->vertices.size() - 1 : 0).pos - intersection->edges.at(vtxId).pos);
+	float dist = glm::length(vec);
+	if (dist > 0.0000001f)
+		std::cout << "Connection dist: " << vec.length() << "\n";
 
 	road->connections.push_back(conn);
 	intersection->connections.push_back(conn);

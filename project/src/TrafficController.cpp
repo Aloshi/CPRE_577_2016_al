@@ -44,7 +44,7 @@ void TrafficAgent::start(const RoadGraph::Node* path, float d)
 {
 	mCurrentNode = path;
 	mPosition = clamp(d, 0.0f, path->data.spline.total_length());
-	mVelocity = 3.0f;
+	mVelocity = 4.0f;
 	mState = DRIVING;
 }
 
@@ -113,13 +113,34 @@ void TrafficController::spawnAgent()
 {
 	auto agent = std::unique_ptr<TrafficAgent>(new TrafficAgent());
 	
+	const float length = 4.0f;
 	const auto& nodes = mGraph.nodes();
-	const RoadGraph::Node* node = nodes.at(rand() % nodes.size());
+
+	int attempts = 0;
 	
-	const float len = node->data.spline.total_length();
-	float min = std::min(2.0f, len);
-	float max = std::max(len - 2.0f, 0.0f);
-	agent->start(node, randf(min, max));
+	RoadGraph::Node* node = NULL;
+	float d = -1.0f;
+
+	while (++attempts < 10) {
+		node = nodes.at(rand() % nodes.size());
+		const float len = node->data.spline.total_length();
+		const float min = std::min(length / 2.0f, len);
+		const float max = std::max(len - length / 2.0f, 0.0f);
+
+		d = randf(min, max);
+		bool ok = true;
+		for (unsigned int j = 0; j < mAgents.size(); j++) {
+			auto other = mAgents.at(j);
+			if (other->node() == node && fabs(d - other->distance()) < length) {
+				ok = false;
+				break;
+			}
+		}
+
+		if (ok)
+			break;
+	}
+	agent->start(node, d);
 
 	mAgents.push_back(std::move(agent));
 }

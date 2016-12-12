@@ -119,6 +119,11 @@ int main()
 	shader->setUniform("projectionMatrix", cam->projection());
 
 
+	// Intersection Edge Order (X+ = right, Z+ = down)
+	//     3
+	//  0 --- 1
+	//     2
+
 	auto test1 = std::make_shared<Road>();
 	test1->vertices = {
 		RoadVertex{ glm::vec3(-10, 0, -13), glm::vec3(0, 1, 0) },
@@ -140,27 +145,51 @@ int main()
 	auto test3 = std::make_shared<Intersection>();
 	test3->edges.push_back(IntersectionEdge{ glm::vec3(15, 0, 0), glm::vec3(0, 1, 0), glm::vec3(1, 0, 0) });
 	test3->edges.push_back(IntersectionEdge{ glm::vec3(25, 0, 0), glm::vec3(0, 1, 0), glm::vec3(-1, 0, 0) });
+	test3->edges.push_back(IntersectionEdge{ glm::vec3(20, 0, 5), glm::vec3(0, 1, 0), glm::vec3(0, 0, -1) });
+	test3->edges.push_back(IntersectionEdge{ glm::vec3(20, 0, -5), glm::vec3(0, 1, 0), glm::vec3(0, 0, 1) });
+
+	auto test4 = std::make_shared<Road>();
+	test4->vertices = {
+		RoadVertex{ glm::vec3(20, 0, 5), glm::vec3(0, 1, 0) },
+		RoadVertex{ glm::vec3(20, 0, 10), glm::vec3(0, 1, 0) },
+		RoadVertex{ glm::vec3(20, 0, 15), glm::vec3(0, 1, 0) },
+		RoadVertex{ glm::vec3(20, 0, 20), glm::vec3(0, 1, 0) },
+	};
+
+
+	auto test5 = std::make_shared<Intersection>();
+	test5->edges.push_back(IntersectionEdge{ glm::vec3(15, 0, 25), glm::vec3(0, 1, 0), glm::vec3(1, 0, 0) });
+	test5->edges.push_back(IntersectionEdge{ glm::vec3(25, 0, 25), glm::vec3(0, 1, 0), glm::vec3(-1, 0, 0) });
+	test5->edges.push_back(IntersectionEdge{ glm::vec3(20, 0, 30), glm::vec3(0, 1, 0), glm::vec3(0, 0, -1) });
+	test5->edges.push_back(IntersectionEdge{ glm::vec3(20, 0, 20), glm::vec3(0, 1, 0), glm::vec3(0, 0, 1) });
+
+	auto test6 = std::make_shared<Road>();
+	test6->vertices = {
+		RoadVertex{ glm::vec3(15, 0, 25), glm::vec3(0, 1, 0) },
+		RoadVertex{ glm::vec3(10, 0, 24.9f), glm::vec3(0, 1, 0) },
+		RoadVertex{ glm::vec3(0,  0, 23), glm::vec3(0, 1, 0) },
+		RoadVertex{ glm::vec3(-10, 0, 10), glm::vec3(0, 1, 0) },
+		RoadVertex{ glm::vec3(-15, 0, 0), glm::vec3(0, 1, 0) },
+		RoadVertex{ glm::vec3(-15, 0, -8), glm::vec3(0, 1, 0) },
+	};
+
+	auto test7 = std::make_shared<Intersection>();
+	test7->edges.push_back(IntersectionEdge{ glm::vec3(-20, 0, -13), glm::vec3(0, 1, 0), glm::vec3(1, 0, 0) });
+	test7->edges.push_back(IntersectionEdge{ glm::vec3(-10, 0, -13), glm::vec3(0, 1, 0), glm::vec3(-1, 0, 0) });
+	test7->edges.push_back(IntersectionEdge{ glm::vec3(-15, 0, -8), glm::vec3(0, 1, 0), glm::vec3(0, 0, -1) });
+	test7->edges.push_back(IntersectionEdge{ glm::vec3(-15, 0, -18), glm::vec3(0, 1, 0), glm::vec3(0, 0, 1) });
 
 	connect(test1, 1, test3, 0);
 	connect(test2, 0, test3, 1);
+	connect(test4, 0, test3, 2);
+	connect(test4, 1, test5, 3);
+	connect(test6, 0, test5, 0);
+	connect(test6, 1, test7, 2);
+	connect(test1, 0, test7, 1);
 
-	/*Road test;
-	test.vertices = {
-		RoadVertex{ glm::vec3(0, 0, 0), glm::vec3(0, 1, 0) },
-		RoadVertex{ glm::vec3(4, 0, -3), glm::vec3(0, 1, 0) },
-		RoadVertex{ glm::vec3(8, 0, -5), glm::vec3(0, 1, 0) },
-		RoadVertex{ glm::vec3(12, 0, -6), glm::vec3(0, 1, 0) },
-		RoadVertex{ glm::vec3(16, 0, -5), glm::vec3(0, 1, 0) },
-		RoadVertex{ glm::vec3(20, 0, -3), glm::vec3(0, 1, 0) },
-		RoadVertex{ glm::vec3(24, 0, 0), glm::vec3(0, 1, 0) },
-	};*/
 
-	//std::shared_ptr<Object> roadObj = test.generateObject();
-
-	//std::shared_ptr<Object> intersection = loadObj("../models/intersection_4way.obj");
-
-	std::vector<std::shared_ptr<Road> > roads = { test1, test2 };
-	std::vector<std::shared_ptr<Intersection> > intersections = { test3 };
+	std::vector<std::shared_ptr<Road> > roads = { test1, test2, test4, test6 };
+	std::vector<std::shared_ptr<Intersection> > intersections = { test3, test5, test7 };
 
 	std::vector< std::shared_ptr<Object> > objects;
 	for (auto r : roads)
@@ -169,11 +198,11 @@ int main()
 		objects.push_back(i->generateObject());
 
 	RoadGraph graph = RoadGraph::build(roads, intersections);
-	//graph.visualize();
+	int visualize_type = RoadGraph::VISUALIZE_NONE;
 
 	TrafficController tc;
 	tc.setGraph(graph);
-	tc.setTargetPopulation(1);
+	tc.setTargetPopulation(5);
 
 	auto freeCam = std::make_shared<CameraController>(cam);
 	auto followCam = std::make_shared<FollowCameraController>(cam, &tc);
@@ -202,6 +231,10 @@ int main()
 					allowTextureMaps = !allowTextureMaps;
 					shader->use();
 					shader->setUniform("allowTextureMaps", allowTextureMaps);
+				}
+				if (e.key == GLFW_KEY_G && e.type == Event::KEY_PRESSED) {
+					visualize_type = (visualize_type + 1) % RoadGraph::VISUALIZE_COUNT;
+					graph.visualize((RoadGraph::VisualizeMode) visualize_type);
 				}
 				break;
 			case Event::MOUSE_MOVED:

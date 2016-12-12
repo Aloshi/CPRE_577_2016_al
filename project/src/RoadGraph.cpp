@@ -4,15 +4,6 @@
 #include <utility>  // std::pair
 #include <iostream>
 
-std::pair<int, int> roadLanes(int lane, int end1, int end2)
-{
-	int in = !end2;
-	int out = !end1;
-
-	lane = lane - (lane % 2);
-	return std::pair<int, int>(lane + in, lane + out);
-}
-
 RoadGraph RoadGraph::build(const std::vector<RoadPtr>& roads, const std::vector<IntersectionPtr>& intersections)
 {
 	RoadGraph graph;
@@ -45,16 +36,15 @@ RoadGraph RoadGraph::build(const std::vector<RoadPtr>& roads, const std::vector<
 				Road* inRoad = c1->road.lock().get();
 				int inRoadEnd = c1->roadEnd;
 				Road* outRoad = c2->road.lock().get();
-				// for some reason inverting this fixes it, i don't know why and it's approaching 1am, so i don't care
-				int outRoadEnd = !c2->roadEnd;
+				int outRoadEnd = c2->roadEnd;
 
 				assert(inRoad->lanes() == outRoad->lanes());
 				for (int lane = 0; lane < inRoad->lanes(); lane += 2) {
 					RoadGraphNodeData data;
 					data.intersection = intersection;
-					data.spline = intersection->generateSpline(i, j, lane);
+					data.spline = intersection->generateSpline(c1->intersectionVertIdx, c2->intersectionVertIdx, lane);
 
-					const auto lanes = roadLanes(lane, inRoadEnd, outRoadEnd);
+					std::pair<int, int> lanes(lane + !inRoadEnd, lane + outRoadEnd);
 
 					Node* intersectionNode = graph.insert(data);
 					roadNodes[inRoad][lanes.first]->edges.push_back(Edge(intersectionNode));
@@ -87,27 +77,45 @@ void splineToPath(const CatmullRom<RoadVertex>& spline,
 	}
 }
 
-void RoadGraph::visualize() const
+void RoadGraph::visualize(VisualizeMode mode) const
 {
+	Debug::clear();
+
 	const glm::vec3 roadColor(1, 0, 0);
 	const glm::vec3 intersectionColor(0, 1, 0);
 
+	std::vector<glm::vec3> ends;
+	std::vector<glm::vec3> normalLines;
 	for (unsigned int i = 0; i < mNodes.size(); i++)
 	{
 		const Node* n = mNodes.at(i);
+
+		for (unsigned int j = 0; j < n->edges.size(); j++) {
+			const auto& edge = n->edges.at(j);
+			auto start = n->data.spline.evaluate(n->data.spline.total_length()).pos;
+			auto end = edge.to->data.spline.evaluate(0).pos;
+			ends.push_back(start);
+			ends.push_back(end + glm::vec3(0, 0.5f, 0));
+		}
+
 
 		std::vector<glm::vec3> pts;
 		std::vector<glm::vec3> normals;
 		splineToPath(n->data.spline, &pts, &normals);
 
-		Debug::drawPath(pts, (!n->data.road.expired()) ? roadColor : intersectionColor);
+		if (mode == VISUALIZE_PATHS)
+			Debug::drawPath(pts, (!n->data.road.expired()) ? roadColor : intersectionColor);
 
-		std::vector<glm::vec3> normalLines;
-		normalLines.resize(pts.size() * 2);
+		normalLines.reserve(normalLines.size() + pts.size() * 2);
 		for (unsigned int j = 0; j < pts.size(); j++) {
-			normalLines[j * 2 + 0] = pts.at(j);
-			normalLines[j * 2 + 1] = normalLines[j * 2] + normals.at(j) * 1.0f;
+			normalLines.push_back(pts.at(j));
+			normalLines.push_back(pts.at(j) + normals.at(j) * 1.0f);
 		}
-		Debug::drawLines(normalLines, glm::vec3(0, 0, 1));
 	}
+
+	if (mode == VISUALIZE_NORMALS)
+		Debug::drawLines(normalLines, glm::vec3(0, 0, 1));
+
+	if (ends.size() > 0 && mode == VISUALIZE_CONNECTIONS)
+		Debug::drawLines(ends, glm::vec3(0, 1, 1));
 }

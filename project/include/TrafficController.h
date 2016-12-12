@@ -15,6 +15,9 @@ public:
 
 	void render();
 
+	inline float distance() const { return mPosition; }
+	inline const RoadGraph::Node* node() const { return mCurrentNode; }
+
 	enum State {
 		DRIVING,
 		WAITING,

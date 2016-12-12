@@ -57,6 +57,9 @@ void draw(const Camera& camera)
 	if (!gInitialized)
 		init();
 
+	if (gMeshes.empty())
+		return;
+
 	gShader->use();
 	gShader->setUniform("projectionMatrix", camera.projection());
 	gShader->setUniform("viewMatrix", camera.view());
@@ -76,7 +79,7 @@ void draw(const Camera& camera)
 
 void clear()
 {
-
+	gMeshes.clear();
 }
 
 }
