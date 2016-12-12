@@ -219,10 +219,11 @@ std::shared_ptr<Mesh> Road::generateMesh() const
 		unsigned int base = topIdxStart + i * 24;
 		float leftDist = glm::length(points[base + 0] - points[base + 2]) * texScale;
 		float rightDist = glm::length(points[base + 4] - points[base + 5]) * texScale;
-		const float avg = (leftDist + rightDist) / 2.0f;
-		leftDist = rightDist = avg;
+		//const float avg = (leftDist + rightDist) / 2.0f;
+		//leftDist = rightDist = avg;
 
 		// 0/1 should be based on totalWidth()
+
 		texCoords[base + 0] = glm::vec2(0, totalLeftDist + leftDist);
 		texCoords[base + 1] = glm::vec2(1, totalRightDist);
 		texCoords[base + 2] = glm::vec2(0, totalLeftDist);
