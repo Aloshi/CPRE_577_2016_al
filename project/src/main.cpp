@@ -71,7 +71,8 @@ bool pollEvent(Event& out) {
 
 int main()
 {
-	Window window(800, 600, "trafficsim", true);
+	glm::ivec2 resolution(1280, 720);
+	Window window(resolution.x, resolution.y, "trafficsim", false);
 
 	glfwSetKeyCallback(window, process_key);
 	glfwSetMouseButtonCallback(window, process_mouse_button);
@@ -114,7 +115,7 @@ int main()
 	//shader->setUniform("materials[0].shininess", 1.0f);
 	//shader->setUniform("materials[0].transparency", 1.0f);
 
-	std::shared_ptr<Camera> cam = std::make_shared<Camera>(1.0f, 800.0f / 600.0f);
+	std::shared_ptr<Camera> cam = std::make_shared<Camera>(1.0f, resolution.x / (float)resolution.y);
 	cam->lookAt(glm::vec3(0, 0, 15), glm::vec3(0, 0, 0));
 	shader->setUniform("projectionMatrix", cam->projection());
 
@@ -124,6 +125,7 @@ int main()
 	//  0 --- 1
 	//     2
 
+	// hard-coded road/intersection vertex setup
 	auto test1 = std::make_shared<Road>();
 	test1->vertices = {
 		RoadVertex{ glm::vec3(-10, 0, -13), glm::vec3(0, 1, 0) },
@@ -222,20 +224,27 @@ int main()
 			case Event::KEY_PRESSED:
 			case Event::KEY_RELEASED:
 				camControl->updateMoveDir(window);
+
+				// toggle follow camera
 				if (e.key == GLFW_KEY_F && e.type == Event::KEY_PRESSED) {
 					useFollowCamera = !useFollowCamera;
 					camControl = useFollowCamera ? followCam : freeCam;
 					cam->setPosition(glm::vec3(0, 0, -15));
 				}
+
+				// toggle normal + specular maps
 				if (e.key == GLFW_KEY_N && e.type == Event::KEY_PRESSED) {
 					allowTextureMaps = !allowTextureMaps;
 					shader->use();
 					shader->setUniform("allowTextureMaps", allowTextureMaps);
 				}
+
+				// cycle debug visualizations
 				if (e.key == GLFW_KEY_G && e.type == Event::KEY_PRESSED) {
 					visualize_type = (visualize_type + 1) % RoadGraph::VISUALIZE_COUNT;
 					graph.visualize((RoadGraph::VisualizeMode) visualize_type);
 				}
+
 				break;
 			case Event::MOUSE_MOVED:
 				camControl->onMouseMoved(e.mouseDelta.x, e.mouseDelta.y);

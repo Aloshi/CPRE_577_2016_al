@@ -6,6 +6,7 @@
 #include <glm/vec3.hpp>
 #include <memory>
 
+// splineable road vertex
 struct RoadVertex {
 	glm::vec3 pos;
 	glm::vec3 normal;
@@ -31,8 +32,8 @@ struct Road;
 struct Intersection;
 struct IntersectionEdge;
 
-
-
+// connects a road and intersection
+// can never do road-road or intersection-intersection connections
 struct RoadConnection
 {
 	std::weak_ptr<Road> road;
@@ -45,7 +46,6 @@ struct RoadConnection
 	const RoadVertex& roadVertex() const;
 	const IntersectionEdge& intersectionEdge() const;
 };
-
 
 struct Road
 {
@@ -71,6 +71,7 @@ private:
 
 };
 
+// an entrance/exit to an intersection
 struct IntersectionEdge {
 	glm::vec3 pos;
 	glm::vec3 normal;
@@ -82,6 +83,9 @@ struct IntersectionEdge {
 	inline float laneWidth() const { return 3.0f; }
 };
 
+// to be honest, edges should be a constant in model space, and with an
+// extra transform on the Intersection object itself; but I don't have
+// time to debug that right now
 struct Intersection
 {
 	std::vector<IntersectionEdge> edges;

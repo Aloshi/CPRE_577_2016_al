@@ -77,8 +77,6 @@ void TrafficAgent::update(const TrafficController& tc, float dt)
 	RoadVertex c0, c1;
 	mCurrentNode->data.spline.evaluate(mPosition, &c0, &c1);
 
-	//Debug::drawLines({ c0.pos, c0.pos + c0.normal });
-
 	glm::vec3 pos = c0.pos;
 	glm::vec3 forward = glm::normalize(c1.pos);
 	glm::mat4 mat = glm::lookAt(glm::vec3(0, 0, 0), forward, c0.normal);
@@ -86,10 +84,6 @@ void TrafficAgent::update(const TrafficController& tc, float dt)
 
 	mObject->transform.setPosition(pos);
 	mObject->transform.setRotation(rot);
-
-	/*static float totalt = 0.0f;
-	totalt += dt;
-	mObject->transform.setRotation(glm::angleAxis(sinf(totalt)* glm::pi<float>(), glm::vec3(0, 1, 0)));*/
 }
 
 void TrafficAgent::render()
@@ -107,6 +101,10 @@ void TrafficController::setGraph(const RoadGraph& graph)
 void TrafficController::setTargetPopulation(unsigned int count)
 {
 	mTargetPopulation = count;
+
+	while (mAgents.size() > mTargetPopulation) {
+		mAgents.pop_back();
+	}
 }
 
 void TrafficController::spawnAgent()
@@ -121,7 +119,13 @@ void TrafficController::spawnAgent()
 	RoadGraph::Node* node = NULL;
 	float d = -1.0f;
 
-	while (++attempts < 10) {
+	// terrible way to avoid spawning inside an existing car
+	// a better way would be to make a list of nodes, shuffle it,
+	// then grab a node, pick a random initial d, and check up/down the 
+	// node until we find a free space; if we don't find one, pick the next
+	// node from the shuffled list. if we run out of nodes, there are no free
+	// spots remaining
+	while (++attempts < 50) {
 		node = nodes.at(rand() % nodes.size());
 		const float len = node->data.spline.total_length();
 		const float min = std::min(length / 2.0f, len);
